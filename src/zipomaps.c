@@ -2,16 +2,21 @@
 
 #include "zipomaps.h"
 #include <locations.h>
+#include <download.h>
+#include <cairo.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#define APIKEY "f23adf67ad974aa38a80c8a94b114e44"
 #define FILETRACK "/opt/usr/media/track.gpx"
 #define FILEWPT "/opt/usr/media/wpt.gpx"
 #define MY_ENCODING "UTF-8"
-
+/*
+ * https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=f23adf67ad974aa38a80c8a94b114e44
+ */
 static const double PI = 3.14159265;
 
 typedef struct appdata {
@@ -21,6 +26,9 @@ typedef struct appdata {
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
 	Evas_Object *slider;
+	download_error_e download;
+	download_state_e state;
+	int download_id;
 	int interval;
 	double maxAcceleration;
 	int writeNextWpt;
@@ -31,6 +39,9 @@ typedef struct appdata {
 	xmlTextWriterPtr volatile writerWpt;
 	xmlDocPtr volatile docWpt;
 	location_manager_h manager;
+	Evas_Object *img;
+	cairo_surface_t *surface;
+	cairo_t *cairo;
 } appdata_s;
 
 double
@@ -306,6 +317,9 @@ char
 static void
 win_delete_request_cb(void *data, Evas_Object *obj, void *event_info)
 {
+	appdata_s *ad = data;
+	cairo_surface_destroy(ad->surface);
+	cairo_destroy(ad->cairo);
 	ui_app_exit();
 }
 
@@ -371,6 +385,18 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     sprintf(buf, "Total Distance:%0.1f", ad->distance);
     elm_object_text_set(ad->labelDist, buf);
     free(result);
+
+    ad->download = download_get_state(ad->download_id, &(ad->state));
+    if (ad->state == DOWNLOAD_STATE_COMPLETED){
+    	ad->state = 0;
+    	ad->surface = cairo_image_surface_create_from_png("/opt/usr/media/map.png");
+    	ad->cairo = cairo_create(ad->surface);
+    	cairo_set_source_surface(ad->cairo, ad->surface, 0, 0);
+    	//evas_object_image_size_set(ad->img, 256, 256);
+    	//evas_object_resize(ad->img, 256, 256);
+    	cairo_paint(ad->cairo);
+    	//evas_object_show(ad->img);
+    }
 }
 
 static void
@@ -427,7 +453,15 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	/*elm_object_text_set(obj, result);*/
 	elm_object_text_set(obj, "Way point");
 	free(result);
-
+	//Temporal trick
+	ad->state = 0;
+	ad->download = download_create(&(ad->download_id));
+	ad->download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
+	ad->download = download_set_destination(ad->download_id, "/opt/usr/media/");
+	ad->download = download_set_file_name(ad->download_id, "map.png");
+	//ad->download = download_set_auto_download(download_id, true);
+	ad->download = download_start(ad->download_id);
+	//Temporal trick end
 	location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
 }
 
@@ -471,6 +505,16 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_object_content_set(ad->conform, box);
 	evas_object_show(box);
+
+	/* Image */
+	ad->img = evas_object_image_add(evas_object_evas_get(ad->win));
+	evas_object_image_size_set(ad->img, 256, 256);
+	evas_object_resize(ad->img, 256, 256);
+	evas_object_size_hint_weight_set(ad->img, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->img, EVAS_HINT_FILL, 0.0);
+	//elm_object_content_set(ad->conform, ad->img);
+	elm_box_pack_end(box, ad->img);
+	evas_object_show(ad->img);
 	/* Label */
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */
