@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.zipotron.zipomaps" version="0.0.1">
+    <profile name="mobile"/>
+    <ui-application appid="org.zipotron.zipomaps" exec="zipomaps" launch_mode="single" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>zipomaps</label>
+        <icon>zipomaps.png</icon>
+    </ui-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/download</privilege>
+        <privilege>http://tizen.org/privilege/location</privilege>
+    </privileges>
+    <feature name="http://tizen.org/feature/screen.size.normal.480.800">true</feature>
+    <feature name="http://tizen.org/feature/screen.size.normal.720.1280">true</feature>
+</manifest>
