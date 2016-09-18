@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <system_info.h>
 
 #define APIKEY "f23adf67ad974aa38a80c8a94b114e44"
 #define FILETRACK "/opt/usr/media/track.gpx"
@@ -389,13 +390,8 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     ad->download = download_get_state(ad->download_id, &(ad->state));
     if (ad->state == DOWNLOAD_STATE_COMPLETED){
     	ad->state = 0;
-    	ad->surface = cairo_image_surface_create_from_png("/opt/usr/media/map.png");
-    	ad->cairo = cairo_create(ad->surface);
-    	cairo_set_source_surface(ad->cairo, ad->surface, 0, 0);
-    	//evas_object_image_size_set(ad->img, 256, 256);
-    	//evas_object_resize(ad->img, 256, 256);
-    	cairo_paint(ad->cairo);
-    	//evas_object_show(ad->img);
+
+    	evas_object_image_file_set(ad->img, "/opt/usr/media/map.png", NULL);
     }
 }
 
@@ -500,79 +496,84 @@ create_base_gui(appdata_s *ad)
 	elm_win_resize_object_add(ad->win, ad->conform);
 	evas_object_show(ad->conform);
 
-	Evas_Object *box, *btn_exit, *btn_record;//, *btn_config;
-	box = elm_box_add(ad->win);
-	evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_object_content_set(ad->conform, box);
-	evas_object_show(box);
+	Evas_Object *table, *btn_exit, *btn_record;//, *btn_config;
+	table = elm_table_add(ad->win);
+	//elm_table_padding_set(table, 100, 0);
+
+	elm_object_content_set(ad->conform, table);
+	evas_object_show(table);
 
 	/* Image */
-	ad->img = evas_object_image_add(evas_object_evas_get(ad->win));
-	evas_object_image_size_set(ad->img, 256, 256);
-	evas_object_resize(ad->img, 256, 256);
+	Evas *canvas = evas_object_evas_get(ad->win);
+	ad->img = evas_object_image_filled_add(canvas);
+
+	int max, screen_size_w, screen_size_h;
+	system_info_get_platform_int("tizen.org/feature/screen.height", &screen_size_h);
+	system_info_get_platform_int("tizen.org/feature/screen.width", &screen_size_w);
+	if(screen_size_w < screen_size_h)
+		max = screen_size_w - 20;
+	else
+		max = screen_size_h - 20;
+	evas_object_size_hint_max_set(ad->img, max, max);
+	evas_object_size_hint_min_set(ad->img, max, max);
 	evas_object_size_hint_weight_set(ad->img, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->img, EVAS_HINT_FILL, 0.0);
-	//elm_object_content_set(ad->conform, ad->img);
-	elm_box_pack_end(box, ad->img);
+	evas_object_size_hint_align_set(ad->img, EVAS_HINT_FILL, 0.5);
+	elm_table_pack(table, ad->img, 0,0,4,4);
 	evas_object_show(ad->img);
 	/* Label */
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */
-	ad->labelGps = elm_label_add(box);
+	ad->labelGps = elm_label_add(table);
 	elm_object_text_set(ad->labelGps, "<align=center>Waiting GPS status</align>");
-	evas_object_size_hint_weight_set(ad->labelGps, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->labelGps, EVAS_HINT_FILL, 0.0);
-	elm_box_pack_end(box, ad->labelGps);
+
+	elm_table_pack(table, ad->labelGps,0,4,4,1);
 	evas_object_show(ad->labelGps);
 
-	ad->labelCalc = elm_label_add(box);
+	ad->labelCalc = elm_label_add(table);
 	elm_object_text_set(ad->labelCalc, "<align=center>GPS Tracker</align>");
-	evas_object_size_hint_weight_set(ad->labelCalc, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->labelCalc, EVAS_HINT_FILL, 0.1);
-	elm_box_pack_end(box, ad->labelCalc);
+
+	elm_table_pack(table, ad->labelCalc,0,5,4,1);
 	evas_object_show(ad->labelCalc);
 
-	ad->labelDist = elm_label_add(box);
+	ad->labelDist = elm_label_add(table);
 	elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
-	evas_object_size_hint_weight_set(ad->labelDist, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->labelDist, EVAS_HINT_FILL, 0.2);
-	elm_box_pack_end(box, ad->labelDist);
+
+	elm_table_pack(table, ad->labelDist,0,6,4,1);
 	evas_object_show(ad->labelDist);
 
-	ad->slider = elm_slider_add(ad->conform);
+	ad->slider = elm_slider_add(table);
 	elm_slider_min_max_set(ad->slider, 1, 100);
 	elm_slider_value_set(ad->slider, ad->interval);
 	elm_slider_indicator_show_set(ad->slider, EINA_TRUE);
 	elm_slider_indicator_format_set(ad->slider, "%1.0f");
 	evas_object_smart_callback_add(ad->slider, "changed", slider_changed_cb, ad);
-	//my_box_pack(box, slider, 1.0, 0.1, -1.0, 0.0);
-	evas_object_size_hint_weight_set(ad->slider, 0.5, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->slider, EVAS_HINT_FILL, 0.5);
 
+	evas_object_size_hint_weight_set(ad->slider, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->slider, EVAS_HINT_FILL, 0.5);
 	evas_object_color_set(ad->slider, 0, 200, 0, 255);
-	elm_box_pack_end(box, ad->slider);
+	elm_table_pack(table, ad->slider,0,7,4,1);
 	evas_object_show(ad->slider);
 
 	/* Button exit*/
-	btn_exit = elm_button_add(box);
+	btn_exit = elm_button_add(table);
 	elm_object_text_set(btn_exit, "Exit");
 	evas_object_smart_callback_add(btn_exit, "clicked", btn_exit_clicked_cb, ad);
-	evas_object_size_hint_weight_set(btn_exit, 0.5, EVAS_HINT_EXPAND);
+	evas_object_size_hint_weight_set(btn_exit, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(btn_exit, EVAS_HINT_FILL, 0.5);
 
 	evas_object_color_set(btn_exit, 200, 0, 0, 255);
 
-	elm_box_pack_end(box, btn_exit);
+	elm_table_pack(table, btn_exit,0,8,2,1);
 	evas_object_show(btn_exit);
 
 	/* Button start*/
-	btn_record = elm_button_add(box);
+	btn_record = elm_button_add(table);
 	elm_object_text_set(btn_record, "Record");
 	evas_object_smart_callback_add(btn_record, "clicked", btn_record_clicked_cb, ad);
-	evas_object_size_hint_weight_set(btn_record, 0.5, EVAS_HINT_EXPAND);
+	evas_object_size_hint_weight_set(btn_record, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(btn_record, EVAS_HINT_FILL, 0.5);
 
-	elm_box_pack_end(box, btn_record);
+	elm_table_pack(table, btn_record,2,8,2,1);
 	evas_object_show(btn_record);
 
 	/* Show window after base gui is set up */
