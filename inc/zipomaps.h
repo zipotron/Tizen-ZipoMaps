@@ -30,6 +30,8 @@ typedef struct appdata {
 	Evas_Object *img;
 } appdata_s;
 
+#define DIR "/opt/usr/media/ZipoMaps"
+
 #ifdef  LOG_TAG
 #undef  LOG_TAG
 #endif

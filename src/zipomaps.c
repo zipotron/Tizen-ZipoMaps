@@ -10,6 +10,8 @@
 #include <system_settings.h>
 #include <dlog.h>
 #include <libxml/encoding.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define APIKEY "f23adf67ad974aa38a80c8a94b114e44"
 
@@ -295,6 +297,10 @@ app_create(void *data)
 
 	create_base_gui(ad);
 
+	struct stat buf;
+	if( stat(DIR, &buf) == -1 ){
+		mkdir(DIR, 0777);
+	}
 	return true;
 }
 
