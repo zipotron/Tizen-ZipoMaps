@@ -54,7 +54,7 @@ speedAndDistance(double latitude, double longitude, double altitude, time_t time
 		d = distance(oldLatitude, oldLongitude, oldAltitude, latitude, longitude, altitude);
 		if(data){
 			appdata_s *ad = data;
-			ad->distance += d;
+			ad->tracker.distance += d;
 		}
 		if((timestamp - oldTimestamp) > 0){
 			stemp = d / (timestamp - oldTimestamp);

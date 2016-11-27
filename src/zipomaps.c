@@ -63,8 +63,21 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f", latitude, longitude, altitude);
     elm_object_text_set(ad->labelGps, buf);
 
-    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->maxSpeed), ad->maxAcceleration,NULL), ad->maxSpeed);
+    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed);
     elm_object_text_set(ad->labelCalc, buf);
+
+    //Temporal trick
+    	char bufLink[512];
+    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/6/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", long2tilex(longitude, 6), lat2tiley(latitude, 6));
+    	ad->downloader.state = 0;
+    	ad->downloader.download = download_create(&(ad->downloader.download_id));
+    	//ad->downloader.download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
+    	ad->downloader.download = download_set_url(ad->downloader.download_id, bufLink);
+    	ad->downloader.download = download_set_destination(ad->downloader.download_id, DIR_MAPS"/6");
+    	ad->downloader.download = download_set_file_name(ad->downloader.download_id, "map.png");
+    	//ad->downloader.download = download_set_auto_download(download_id, true);
+    	ad->downloader.download = download_start(ad->downloader.download_id);
+    //Temporal trick end
 }
 
 static void
@@ -77,24 +90,24 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
     sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f - %s", latitude, longitude, altitude, result);
 
-    if(ad->writeNextWpt){
+    if(ad->xml.writeNextWpt){
     	free(result);
     	result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
-    	ad->writeNextWpt = 0;
+    	ad->xml.writeNextWpt = 0;
     }
 
     elm_object_text_set(ad->labelGps, buf);
-    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->maxSpeed), ad->maxAcceleration, ad), ad->maxSpeed);
+    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed);
     elm_object_text_set(ad->labelCalc, buf);
-    sprintf(buf, "Total Distance:%0.1f", ad->distance);
+    sprintf(buf, "Total Distance:%0.1f", ad->tracker.distance);
     elm_object_text_set(ad->labelDist, buf);
     free(result);
 
-    ad->download = download_get_state(ad->download_id, &(ad->state));
-    if (ad->state == DOWNLOAD_STATE_COMPLETED){
-    	ad->state = 0;
+    ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
+    if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
+    	ad->downloader.state = 0;
 
-    	evas_object_image_file_set(ad->img, DIR_MAPS"/map.png", NULL);
+    	evas_object_image_file_set(ad->img, DIR_MAPS"/6/map.png", NULL);
     }
 }
 
@@ -116,7 +129,7 @@ btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	result = xmlwriterWriteTrackDoc(DIR_TRK FILETRACK, ad);
 	elm_object_text_set(ad->labelGps, result);
 	free(result);
-	if(ad->docWpt){
+	if(ad->xml.docWpt){
 		result = xmlwriterWriteWptDoc(DIR_TRK FILEWPT, ad);
 		free(result);
 	}
@@ -128,7 +141,7 @@ btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
 	static int counter = 0;
-	if(!ad->writeNextWpt){
+	if(!ad->xml.writeNextWpt){
 		char *result;
 
 		if(counter == 0){
@@ -136,7 +149,7 @@ btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 			free(result);
 		}
 		counter++;
-		ad->writeNextWpt = counter;
+		ad->xml.writeNextWpt = counter;
 	}
 }
 
@@ -152,15 +165,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	/*elm_object_text_set(obj, result);*/
 	elm_object_text_set(obj, "Way point");
 	free(result);
-	//Temporal trick
-	ad->state = 0;
-	ad->download = download_create(&(ad->download_id));
-	ad->download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
-	ad->download = download_set_destination(ad->download_id, DIR_MAPS);
-	ad->download = download_set_file_name(ad->download_id, "map.png");
-	//ad->download = download_set_auto_download(download_id, true);
-	ad->download = download_start(ad->download_id);
-	//Temporal trick end
+
 	location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
 }
 
@@ -174,11 +179,11 @@ create_base_gui(appdata_s *ad)
 	elm_win_autodel_set(ad->win, EINA_TRUE);
 
 	ad->interval = 5;
-	ad->writeNextWpt = 0;
-	ad->docWpt = NULL;
-	ad->maxSpeed = 0;
-	ad->distance = 0;
-	ad->maxAcceleration = 15;
+	ad->xml.writeNextWpt = 0;
+	ad->xml.docWpt = NULL;
+	ad->tracker.maxSpeed = 0;
+	ad->tracker.distance = 0;
+	ad->tracker.maxAcceleration = 15;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
 		int rots[4] = { 0, 90, 180, 270 };

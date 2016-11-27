@@ -14,18 +14,30 @@ typedef struct appdata {
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
 	Evas_Object *slider;
-	download_error_e download;
-	download_state_e state;
-	int download_id;
+	struct{
+		download_error_e download;
+		download_state_e state;
+		int download_id;
+	}downloader;
+	struct{
+		double maxAcceleration;
+		double distance;
+		double maxSpeed;
+	}tracker;
+	struct{
+		xmlTextWriterPtr volatile writerTrk;
+		xmlDocPtr volatile docTrk;
+		xmlTextWriterPtr volatile writerWpt;
+		xmlDocPtr volatile docWpt;
+		int writeNextWpt;
+	}xml;
+	struct{
+		double latitude;
+		double longitude;
+		double altitude;
+		int zoom;
+	}visor;
 	int interval;
-	double maxAcceleration;
-	int writeNextWpt;
-	double distance;
-	double maxSpeed;
-	xmlTextWriterPtr volatile writerTrk;
-	xmlDocPtr volatile docTrk;
-	xmlTextWriterPtr volatile writerWpt;
-	xmlDocPtr volatile docWpt;
 	location_manager_h manager;
 	Evas_Object *img;
 } appdata_s;

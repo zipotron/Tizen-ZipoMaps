@@ -10,23 +10,23 @@ char
 
     sprintf(buf,"OK\n");
     /* Create a new XmlWriter for DOM, with no compression. */
-    ad->writerWpt = xmlNewTextWriterDoc((xmlDocPtr*)&(ad->docWpt), 0);
-    if (ad->writerWpt == NULL) {
+    ad->xml.writerWpt = xmlNewTextWriterDoc((xmlDocPtr*)&(ad->xml.docWpt), 0);
+    if (ad->xml.writerWpt == NULL) {
         sprintf(buf,"testXmlwriterDoc: Error creating the xml writer\n");
         return buf;
     }
 
-    rc = xmlTextWriterStartDocument(ad->writerWpt, NULL, MY_ENCODING, NULL);
+    rc = xmlTextWriterStartDocument(ad->xml.writerWpt, NULL, MY_ENCODING, NULL);
     if (rc < 0) {
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
         return buf;
     }
 
-    rc = xmlTextWriterStartElement(ad->writerWpt, BAD_CAST "gpx");
+    rc = xmlTextWriterStartElement(ad->xml.writerWpt, BAD_CAST "gpx");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
-    rc = xmlTextWriterWriteAttribute(ad->writerWpt, BAD_CAST "version",
+    rc = xmlTextWriterWriteAttribute(ad->xml.writerWpt, BAD_CAST "version",
                                          BAD_CAST "1.0");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
@@ -42,43 +42,43 @@ char
 
     sprintf(buf,"OK\n");
     /* Create a new XmlWriter for DOM, with no compression. */
-    ad->writerTrk = xmlNewTextWriterDoc((xmlDocPtr*)&(ad->docTrk), 0);
-    if (ad->writerTrk == NULL) {
+    ad->xml.writerTrk = xmlNewTextWriterDoc((xmlDocPtr*)&(ad->xml.docTrk), 0);
+    if (ad->xml.writerTrk == NULL) {
         sprintf(buf,"testXmlwriterDoc: Error creating the xml writer\n");
         return buf;
     }
 
-    rc = xmlTextWriterStartDocument(ad->writerTrk, NULL, MY_ENCODING, NULL);
+    rc = xmlTextWriterStartDocument(ad->xml.writerTrk, NULL, MY_ENCODING, NULL);
     if (rc < 0) {
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
         return buf;
     }
 
-    rc = xmlTextWriterStartElement(ad->writerTrk, BAD_CAST "gpx");
+    rc = xmlTextWriterStartElement(ad->xml.writerTrk, BAD_CAST "gpx");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
-    rc = xmlTextWriterWriteAttribute(ad->writerTrk, BAD_CAST "version",
+    rc = xmlTextWriterWriteAttribute(ad->xml.writerTrk, BAD_CAST "version",
                                          BAD_CAST "1.0");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
 
-    rc = xmlTextWriterStartElement(ad->writerTrk, BAD_CAST "trk");
+    rc = xmlTextWriterStartElement(ad->xml.writerTrk, BAD_CAST "trk");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
-    rc = xmlTextWriterWriteFormatElement(ad->writerTrk, BAD_CAST "name",
+    rc = xmlTextWriterWriteFormatElement(ad->xml.writerTrk, BAD_CAST "name",
                                              "%s", "Example");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
-    rc = xmlTextWriterWriteFormatElement(ad->writerTrk, BAD_CAST "number",
+    rc = xmlTextWriterWriteFormatElement(ad->xml.writerTrk, BAD_CAST "number",
                                                      "%d", 1);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
 
-    rc = xmlTextWriterStartElement(ad->writerTrk, BAD_CAST "trkseg");
+    rc = xmlTextWriterStartElement(ad->xml.writerTrk, BAD_CAST "trkseg");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
@@ -92,27 +92,27 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	rc = xmlTextWriterEndElement(ad->writerTrk);
+	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement3\n");
 
-	rc = xmlTextWriterEndElement(ad->writerTrk);
+	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement2\n");
 
-	rc = xmlTextWriterEndElement(ad->writerTrk);
+	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement1\n");
 
-	rc = xmlTextWriterEndDocument(ad->writerTrk);
+	rc = xmlTextWriterEndDocument(ad->xml.writerTrk);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
 
-	xmlFreeTextWriter(ad->writerTrk);
+	xmlFreeTextWriter(ad->xml.writerTrk);
 
-	xmlSaveFileEnc(file, ad->docTrk, MY_ENCODING);
+	xmlSaveFileEnc(file, ad->xml.docTrk, MY_ENCODING);
 
-	xmlFreeDoc(ad->docTrk);
+	xmlFreeDoc(ad->xml.docTrk);
 
 	return buf;
 }
@@ -125,15 +125,15 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	rc = xmlTextWriterEndDocument(ad->writerWpt);
+	rc = xmlTextWriterEndDocument(ad->xml.writerWpt);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
 
-	xmlFreeTextWriter(ad->writerWpt);
+	xmlFreeTextWriter(ad->xml.writerWpt);
 
-	xmlSaveFileEnc(file, ad->docWpt, MY_ENCODING);
+	xmlSaveFileEnc(file, ad->xml.docWpt, MY_ENCODING);
 
-	xmlFreeDoc(ad->docWpt);
+	xmlFreeDoc(ad->xml.docWpt);
 
 	return buf;
 }
@@ -146,31 +146,31 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	rc = xmlTextWriterStartElement(ad->writerWpt, BAD_CAST "wpt");
+	rc = xmlTextWriterStartElement(ad->xml.writerWpt, BAD_CAST "wpt");
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
-	rc = xmlTextWriterWriteFormatAttribute(ad->writerWpt, BAD_CAST "lat",
+	rc = xmlTextWriterWriteFormatAttribute(ad->xml.writerWpt, BAD_CAST "lat",
 	                                             "%f", latitude);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
 
-	rc = xmlTextWriterWriteFormatAttribute(ad->writerWpt, BAD_CAST "lon",
+	rc = xmlTextWriterWriteFormatAttribute(ad->xml.writerWpt, BAD_CAST "lon",
 	                                                 "%f", longitude);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
 
-	rc = xmlTextWriterWriteFormatElement(ad->writerWpt, BAD_CAST "ele",
+	rc = xmlTextWriterWriteFormatElement(ad->xml.writerWpt, BAD_CAST "ele",
 	                                             "%f", altitude);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
-	rc = xmlTextWriterWriteFormatElement(ad->writerWpt, BAD_CAST "name",
-		                                             "%d", ad->writeNextWpt);
+	rc = xmlTextWriterWriteFormatElement(ad->xml.writerWpt, BAD_CAST "name",
+		                                             "%d", ad->xml.writeNextWpt);
 	if (rc < 0)
 		sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
-	rc = xmlTextWriterEndElement(ad->writerWpt);
+	rc = xmlTextWriterEndElement(ad->xml.writerWpt);
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
@@ -187,32 +187,32 @@ char
 	sprintf(buf,"OK\n");
 
     /* Start track */
-    rc = xmlTextWriterStartElement(ad->writerTrk, BAD_CAST "trkpt");
+    rc = xmlTextWriterStartElement(ad->xml.writerTrk, BAD_CAST "trkpt");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
 
-    rc = xmlTextWriterWriteFormatAttribute(ad->writerTrk, BAD_CAST "lat",
+    rc = xmlTextWriterWriteFormatAttribute(ad->xml.writerTrk, BAD_CAST "lat",
                                              "%f", latitude);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
 
-    rc = xmlTextWriterWriteFormatAttribute(ad->writerTrk, BAD_CAST "lon",
+    rc = xmlTextWriterWriteFormatAttribute(ad->xml.writerTrk, BAD_CAST "lon",
                                                  "%f", longitude);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
 
-    rc = xmlTextWriterWriteFormatElement(ad->writerTrk, BAD_CAST "ele",
+    rc = xmlTextWriterWriteFormatElement(ad->xml.writerTrk, BAD_CAST "ele",
                                              "%f", altitude);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
     strftime(tbuf, 21, "%Y-%m-%dT%H:%M:%SZ", localtime(&timestamp));
-    rc = xmlTextWriterWriteFormatElement(ad->writerTrk, BAD_CAST "time",
+    rc = xmlTextWriterWriteFormatElement(ad->xml.writerTrk, BAD_CAST "time",
                                                  "%s", tbuf);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterWriteFormatElement\n");
 
-    rc = xmlTextWriterEndElement(ad->writerTrk);
+    rc = xmlTextWriterEndElement(ad->xml.writerTrk);
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
