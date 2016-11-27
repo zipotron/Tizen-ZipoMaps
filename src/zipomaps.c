@@ -94,7 +94,7 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     if (ad->state == DOWNLOAD_STATE_COMPLETED){
     	ad->state = 0;
 
-    	evas_object_image_file_set(ad->img, "/opt/usr/media/map.png", NULL);
+    	evas_object_image_file_set(ad->img, DIR_MAPS"/map.png", NULL);
     }
 }
 
@@ -113,11 +113,11 @@ btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	appdata_s *ad = data;
 	char *result;
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
-	result = xmlwriterWriteTrackDoc(FILETRACK, ad);
+	result = xmlwriterWriteTrackDoc(DIR_TRK FILETRACK, ad);
 	elm_object_text_set(ad->labelGps, result);
 	free(result);
 	if(ad->docWpt){
-		result = xmlwriterWriteWptDoc(FILEWPT, ad);
+		result = xmlwriterWriteWptDoc(DIR_TRK FILEWPT, ad);
 		free(result);
 	}
 	ui_app_exit();
@@ -156,7 +156,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	ad->state = 0;
 	ad->download = download_create(&(ad->download_id));
 	ad->download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
-	ad->download = download_set_destination(ad->download_id, "/opt/usr/media/");
+	ad->download = download_set_destination(ad->download_id, DIR_MAPS);
 	ad->download = download_set_file_name(ad->download_id, "map.png");
 	//ad->download = download_set_auto_download(download_id, true);
 	ad->download = download_start(ad->download_id);
@@ -300,6 +300,31 @@ app_create(void *data)
 	struct stat buf;
 	if( stat(DIR, &buf) == -1 ){
 		mkdir(DIR, 0777);
+		mkdir(DIR_TRK, 0777);
+		mkdir(DIR_MAPS, 0777);
+		for(int i=0; i<14;i++){
+			char bufd[128];
+			sprintf(bufd, DIR_MAPS"/%d", i);
+			mkdir(bufd, 0777);
+		}
+	}else{
+		if( stat(DIR_TRK, &buf) == -1 )
+			mkdir(DIR_TRK, 0777);
+		if( stat(DIR_MAPS, &buf) == -1 ){
+			mkdir(DIR_MAPS, 0777);
+			for(int i=0; i<14;i++){
+				char bufd[128];
+				sprintf(bufd, DIR_MAPS"/%d", i);
+				mkdir(bufd, 0777);
+			}
+		}else{
+			for(int i=0; i<14;i++){
+				char bufd[128];
+				sprintf(bufd, DIR_MAPS"/%d", i);
+				if( stat(bufd, &buf) == -1 )
+					mkdir(bufd, 0777);
+			}
+		}
 	}
 	return true;
 }

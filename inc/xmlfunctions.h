@@ -1,7 +1,7 @@
 #include <Elementary.h>
 
-#define FILETRACK "/opt/usr/media/track.gpx"
-#define FILEWPT "/opt/usr/media/wpt.gpx"
+#define FILETRACK "/track.gpx"
+#define FILEWPT "/wpt.gpx"
 #define MY_ENCODING "UTF-8"
 
 char
