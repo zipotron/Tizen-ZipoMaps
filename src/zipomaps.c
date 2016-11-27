@@ -333,7 +333,7 @@ app_create(void *data)
 		mkdir(DIR, 0777);
 		mkdir(DIR_TRK, 0777);
 		mkdir(DIR_MAPS, 0777);
-		for(int i=0; i<14;i++){
+		for(int i=1; i<15;i++){
 			char bufd[128];
 			sprintf(bufd, DIR_MAPS"/%d", i);
 			mkdir(bufd, 0777);
@@ -343,13 +343,13 @@ app_create(void *data)
 			mkdir(DIR_TRK, 0777);
 		if( stat(DIR_MAPS, &buf) == -1 ){
 			mkdir(DIR_MAPS, 0777);
-			for(int i=0; i<14;i++){
+			for(int i=1; i<15;i++){
 				char bufd[128];
 				sprintf(bufd, DIR_MAPS"/%d", i);
 				mkdir(bufd, 0777);
 			}
 		}else{
-			for(int i=0; i<14;i++){
+			for(int i=1; i<15;i++){
 				char bufd[128];
 				sprintf(bufd, DIR_MAPS"/%d", i);
 				if( stat(bufd, &buf) == -1 )
