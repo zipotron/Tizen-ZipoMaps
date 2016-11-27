@@ -68,12 +68,14 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 
     //Temporal trick
     	char bufLink[512];
-    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/6/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", long2tilex(longitude, 6), lat2tiley(latitude, 6));
+    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/%d/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", ad->visor.zoom, long2tilex(longitude, 6), lat2tiley(latitude, 6));
     	ad->downloader.state = 0;
     	ad->downloader.download = download_create(&(ad->downloader.download_id));
     	//ad->downloader.download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
     	ad->downloader.download = download_set_url(ad->downloader.download_id, bufLink);
-    	ad->downloader.download = download_set_destination(ad->downloader.download_id, DIR_MAPS"/6");
+    	char bufd[128];
+    	sprintf(bufd, DIR_MAPS"/%d",ad->visor.zoom);
+    	ad->downloader.download = download_set_destination(ad->downloader.download_id, bufd);
     	ad->downloader.download = download_set_file_name(ad->downloader.download_id, "map.png");
     	//ad->downloader.download = download_set_auto_download(download_id, true);
     	ad->downloader.download = download_start(ad->downloader.download_id);
@@ -107,17 +109,27 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
     	ad->downloader.state = 0;
 
-    	evas_object_image_file_set(ad->img, DIR_MAPS"/6/map.png", NULL);
+    	char bufd[12];
+    	sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
+    	evas_object_image_file_set(ad->img, bufd, NULL);
     }
 }
 
 static void
-slider_changed_cb(void *data, Evas_Object *obj, void *event_info)
+slider_Interval_changed_cb(void *data, Evas_Object *obj, void *event_info)
 {
     appdata_s *ad = data;
 
     ad->interval = elm_slider_value_get(obj);
     location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+}
+
+static void
+slider_Zoom_changed_cb(void *data, Evas_Object *obj, void *event_info)
+{
+    appdata_s *ad = data;
+
+    ad->visor.zoom = elm_slider_value_get(obj);
 }
 
 static void
@@ -158,7 +170,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
 
-	evas_object_hide(ad->slider);
+	evas_object_hide(ad->sliderInterval);
 	evas_object_smart_callback_add(obj, "clicked", btn_point_clicked_cb, ad);
 	char *result;
 	result = xmlwriterCreateTrackDoc(ad);
@@ -184,6 +196,7 @@ create_base_gui(appdata_s *ad)
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
 	ad->tracker.maxAcceleration = 15;
+	ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
 		int rots[4] = { 0, 90, 180, 270 };
@@ -249,18 +262,31 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->labelDist,0,6,4,1);
 	evas_object_show(ad->labelDist);
 
-	ad->slider = elm_slider_add(table);
-	elm_slider_min_max_set(ad->slider, 1, 100);
-	elm_slider_value_set(ad->slider, ad->interval);
-	elm_slider_indicator_show_set(ad->slider, EINA_TRUE);
-	elm_slider_indicator_format_set(ad->slider, "%1.0f");
-	evas_object_smart_callback_add(ad->slider, "changed", slider_changed_cb, ad);
+	ad->sliderInterval = elm_slider_add(table);
+	elm_slider_min_max_set(ad->sliderInterval, 1, 100);
+	elm_slider_value_set(ad->sliderInterval, ad->interval);
+	elm_slider_indicator_show_set(ad->sliderInterval, EINA_TRUE);
+	elm_slider_indicator_format_set(ad->sliderInterval, "%1.0f");
+	evas_object_smart_callback_add(ad->sliderInterval, "changed", slider_Interval_changed_cb, ad);
 
-	evas_object_size_hint_weight_set(ad->slider, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->slider, EVAS_HINT_FILL, 0.5);
-	evas_object_color_set(ad->slider, 0, 200, 0, 255);
-	elm_table_pack(table, ad->slider,0,7,4,1);
-	evas_object_show(ad->slider);
+	evas_object_size_hint_weight_set(ad->sliderInterval, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->sliderInterval, EVAS_HINT_FILL, 0.5);
+	evas_object_color_set(ad->sliderInterval, 0, 200, 0, 255);
+	elm_table_pack(table, ad->sliderInterval,0,7,4,1);
+	evas_object_show(ad->sliderInterval);
+
+	ad->sliderZoom = elm_slider_add(table);
+	elm_slider_min_max_set(ad->sliderZoom, 1, 14);
+	elm_slider_value_set(ad->sliderZoom, ad->visor.zoom);
+	elm_slider_indicator_show_set(ad->sliderZoom, EINA_TRUE);
+	elm_slider_indicator_format_set(ad->sliderZoom, "%1.0f");
+	evas_object_smart_callback_add(ad->sliderZoom, "changed", slider_Zoom_changed_cb, ad);
+
+	evas_object_size_hint_weight_set(ad->sliderZoom, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->sliderZoom, EVAS_HINT_FILL, 0.5);
+	evas_object_color_set(ad->sliderZoom, 0, 200, 0, 255);
+	elm_table_pack(table, ad->sliderZoom,0,8,4,1);
+	evas_object_show(ad->sliderZoom);
 
 	/* Button exit*/
 	btn_exit = elm_button_add(table);
@@ -271,7 +297,7 @@ create_base_gui(appdata_s *ad)
 
 	evas_object_color_set(btn_exit, 200, 0, 0, 255);
 
-	elm_table_pack(table, btn_exit,0,8,2,1);
+	elm_table_pack(table, btn_exit,0,9,2,1);
 	evas_object_show(btn_exit);
 
 	/* Button start*/
@@ -281,7 +307,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_weight_set(btn_record, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(btn_record, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, btn_record,2,8,2,1);
+	elm_table_pack(table, btn_record,2,9,2,1);
 	evas_object_show(btn_record);
 
 	/* Show window after base gui is set up */

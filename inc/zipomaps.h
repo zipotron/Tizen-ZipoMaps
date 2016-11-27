@@ -13,7 +13,8 @@ typedef struct appdata {
 	Evas_Object *labelGps;
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
-	Evas_Object *slider;
+	Evas_Object *sliderInterval;
+	Evas_Object *sliderZoom;
 	struct{
 		download_error_e download;
 		download_state_e state;
