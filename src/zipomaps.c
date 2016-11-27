@@ -68,7 +68,7 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 
     //Temporal trick
     	char bufLink[512];
-    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/%d/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", ad->visor.zoom, long2tilex(longitude, 6), lat2tiley(latitude, 6));
+    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/%d/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", ad->visor.zoom, long2tilex(longitude, ad->visor.zoom), lat2tiley(latitude, ad->visor.zoom));
     	ad->downloader.state = 0;
     	ad->downloader.download = download_create(&(ad->downloader.download_id));
     	//ad->downloader.download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
