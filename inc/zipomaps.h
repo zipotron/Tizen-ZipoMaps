@@ -41,11 +41,8 @@ typedef struct appdata {
 	int interval;
 	location_manager_h manager;
 	Evas_Object *img;
+	Evas_Object *map;
 } appdata_s;
-
-#define DIR_MAPS "/opt/usr/media/ZipoMaps/maps"
-#define DIR_TRK "/opt/usr/media/ZipoMaps/tracks"
-#define DIR "/opt/usr/media/ZipoMaps"
 
 #ifdef  LOG_TAG
 #undef  LOG_TAG

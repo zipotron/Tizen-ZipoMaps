@@ -3,6 +3,7 @@
 #include "zipomaps.h"
 #include "calcfunctions.h"
 #include "xmlfunctions.h"
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <system_info.h>
@@ -12,8 +13,6 @@
 #include <libxml/encoding.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#define APIKEY "f23adf67ad974aa38a80c8a94b114e44"
 
 /*
  * https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=f23adf67ad974aa38a80c8a94b114e44
@@ -225,8 +224,8 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(table);
 
 	/* Image */
-	Evas *canvas = evas_object_evas_get(ad->win);
-	ad->img = evas_object_image_filled_add(canvas);
+	/*Evas *canvas = evas_object_evas_get(ad->win);
+	ad->img = evas_object_image_filled_add(canvas);*/
 
 	int max, screen_size_w, screen_size_h;
 	system_info_get_platform_int("tizen.org/feature/screen.height", &screen_size_h);
@@ -235,12 +234,23 @@ create_base_gui(appdata_s *ad)
 		max = screen_size_w - 20;
 	else
 		max = screen_size_h - 20;
-	evas_object_size_hint_max_set(ad->img, max, max);
+	/*evas_object_size_hint_max_set(ad->img, max, max);
 	evas_object_size_hint_min_set(ad->img, max, max);
 	evas_object_size_hint_weight_set(ad->img, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->img, EVAS_HINT_FILL, 0.5);
 	elm_table_pack(table, ad->img, 0,0,4,4);
-	evas_object_show(ad->img);
+	evas_object_show(ad->img);*/
+
+	ad->map = elm_map_add(ad->conform);
+	//elm_map_zoom_mode_set(ad->map, ELM_MAP_ZOOM_MODE_MANUAL);
+	//elm_map_zoom_set(ad->map, 12);
+	elm_map_region_show(ad->map, 2.2, 48.8);
+	evas_object_size_hint_max_set(ad->map, max, max);
+	evas_object_size_hint_min_set(ad->map, max, max);
+	evas_object_size_hint_weight_set(ad->map, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->map, EVAS_HINT_FILL, 0.5);
+	elm_table_pack(table, ad->map, 0,0,4,4);
+	evas_object_show(ad->map);
 	/* Label */
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */

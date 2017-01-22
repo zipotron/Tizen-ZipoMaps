@@ -7,6 +7,7 @@
     </ui-application>
     <privileges>
         <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/mapservice</privilege>
         <privilege>http://tizen.org/privilege/download</privilege>
         <privilege>http://tizen.org/privilege/location</privilege>
     </privileges>
