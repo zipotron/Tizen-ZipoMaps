@@ -57,8 +57,8 @@ show_state(appdata_s *ad)
 static void
 show_map_point(void *user_data){
 	appdata_s *ad = user_data;
-	elm_map_zoom_set(ad->map, ad->visor.zoom);
-	elm_map_region_show(ad->map, ad->visor.latitude, ad->visor.longitude);
+	//elm_map_zoom_set(ad->map, ad->visor.zoom);
+	elm_map_region_show(ad->map, ad->visor.longitude, ad->visor.latitude);
 }
 
 static void
@@ -74,7 +74,7 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 {
     appdata_s *ad = user_data;
     set_position(latitude, longitude, altitude, ad);
-    show_map_point(ad);
+    //show_map_point(ad);
 
     char buf[100];
     sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f", latitude, longitude, altitude);
@@ -144,13 +144,13 @@ slider_Interval_changed_cb(void *data, Evas_Object *obj, void *event_info)
     location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 }
 
-static void
+/*static void
 slider_Zoom_changed_cb(void *data, Evas_Object *obj, void *event_info)
 {
     appdata_s *ad = data;
 
     ad->visor.zoom = elm_slider_value_get(obj);
-}
+}*/
 
 static void
 btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
@@ -216,7 +216,7 @@ create_base_gui(appdata_s *ad)
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
 	ad->tracker.maxAcceleration = 15;
-	ad->visor.zoom = 7;
+	//ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
 		int rots[4] = { 0, 90, 180, 270 };
@@ -264,6 +264,7 @@ create_base_gui(appdata_s *ad)
 
 	ad->map = elm_map_add(ad->conform);
 	elm_map_zoom_mode_set(ad->map, ELM_MAP_ZOOM_MODE_MANUAL);
+	elm_map_zoom_set(ad->map, 12);
 
 	evas_object_size_hint_max_set(ad->map, max, max);
 	evas_object_size_hint_min_set(ad->map, max, max);
@@ -305,7 +306,7 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->sliderInterval,0,7,4,1);
 	evas_object_show(ad->sliderInterval);
 
-	ad->sliderZoom = elm_slider_add(table);
+	/*ad->sliderZoom = elm_slider_add(table);
 	elm_slider_min_max_set(ad->sliderZoom, 1, 14);
 	elm_slider_value_set(ad->sliderZoom, ad->visor.zoom);
 	elm_slider_indicator_show_set(ad->sliderZoom, EINA_TRUE);
@@ -316,7 +317,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_align_set(ad->sliderZoom, EVAS_HINT_FILL, 0.5);
 	evas_object_color_set(ad->sliderZoom, 0, 200, 0, 255);
 	elm_table_pack(table, ad->sliderZoom,0,8,4,1);
-	evas_object_show(ad->sliderZoom);
+	evas_object_show(ad->sliderZoom);*/
 
 	/* Button exit*/
 	btn_exit = elm_button_add(table);

@@ -14,7 +14,7 @@ typedef struct appdata {
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
 	Evas_Object *sliderInterval;
-	Evas_Object *sliderZoom;
+	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;
 		download_state_e state;
@@ -36,7 +36,7 @@ typedef struct appdata {
 		double latitude;
 		double longitude;
 		double altitude;
-		int zoom;
+		//int zoom;
 	}visor;
 	int interval;
 	location_manager_h manager;
