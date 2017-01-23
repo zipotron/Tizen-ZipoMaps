@@ -1,3 +1,3 @@
-void setStuctPtr(void *v);
+/*void setStuctPtr(void *v);
 void downloadFile();//hay que eliminarlo
-void setView(void *user_data);
+void setView(void *user_data);*/
