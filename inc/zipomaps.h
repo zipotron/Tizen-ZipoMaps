@@ -4,7 +4,7 @@
 #include <app.h>
 #include <efl_extension.h>
 #include <locations.h>
-#include <download.h>
+//#include <download.h>
 #include <libxml/xmlwriter.h>
 
 typedef struct appdata {
@@ -15,11 +15,11 @@ typedef struct appdata {
 	Evas_Object *labelDist;
 	Evas_Object *sliderInterval;
 	Evas_Object *sliderZoom;
-	struct{
+	/*struct{
 		download_error_e download;
 		download_state_e state;
 		int download_id;
-	}downloader;
+	}downloader;*/
 	struct{
 		double maxAcceleration;
 		double distance;
@@ -40,7 +40,7 @@ typedef struct appdata {
 	}visor;
 	int interval;
 	location_manager_h manager;
-	Evas_Object *img;
+	//Evas_Object *img;
 	Evas_Object *map;
 } appdata_s;
 

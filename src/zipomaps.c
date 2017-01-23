@@ -55,9 +55,27 @@ show_state(appdata_s *ad)
 }
 
 static void
+show_map_point(void *user_data){
+	appdata_s *ad = user_data;
+	elm_map_zoom_set(ad->map, ad->visor.zoom);
+	elm_map_region_show(ad->map, ad->visor.latitude, ad->visor.longitude);
+}
+
+static void
+set_position(double latitude, double longitude, double altitude, void *user_data){
+	appdata_s *ad = user_data;
+	ad->visor.latitude = latitude;
+	ad->visor.longitude = longitude;
+	ad->visor.altitude = altitude;
+}
+
+static void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
     appdata_s *ad = user_data;
+    set_position(latitude, longitude, altitude, ad);
+    show_map_point(ad);
+
     char buf[100];
     sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f", latitude, longitude, altitude);
     elm_object_text_set(ad->labelGps, buf);
@@ -66,7 +84,7 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     elm_object_text_set(ad->labelCalc, buf);
 
     //Temporal trick
-    	char bufLink[512];
+    	/*char bufLink[512];
     	sprintf(bufLink, "https://tile.thunderforest.com/cycle/%d/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", ad->visor.zoom, long2tilex(longitude, ad->visor.zoom), lat2tiley(latitude, ad->visor.zoom));
     	ad->downloader.state = 0;
     	ad->downloader.download = download_create(&(ad->downloader.download_id));
@@ -77,7 +95,7 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     	ad->downloader.download = download_set_destination(ad->downloader.download_id, bufd);
     	ad->downloader.download = download_set_file_name(ad->downloader.download_id, "map.png");
     	//ad->downloader.download = download_set_auto_download(download_id, true);
-    	ad->downloader.download = download_start(ad->downloader.download_id);
+    	ad->downloader.download = download_start(ad->downloader.download_id);*/
     //Temporal trick end
 }
 
@@ -85,6 +103,9 @@ static void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
     appdata_s *ad = user_data;
+    set_position(latitude, longitude, altitude, ad);
+    show_map_point(ad);
+
     char *result;
     char buf[100];
 
@@ -104,14 +125,14 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     elm_object_text_set(ad->labelDist, buf);
     free(result);
 
-    ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
+    /*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
     if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
     	ad->downloader.state = 0;
 
     	char bufd[12];
     	sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
     	evas_object_image_file_set(ad->img, bufd, NULL);
-    }
+    }*/
 }
 
 static void
@@ -242,9 +263,8 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->img);*/
 
 	ad->map = elm_map_add(ad->conform);
-	//elm_map_zoom_mode_set(ad->map, ELM_MAP_ZOOM_MODE_MANUAL);
-	//elm_map_zoom_set(ad->map, 12);
-	elm_map_region_show(ad->map, 2.2, 48.8);
+	elm_map_zoom_mode_set(ad->map, ELM_MAP_ZOOM_MODE_MANUAL);
+
 	evas_object_size_hint_max_set(ad->map, max, max);
 	evas_object_size_hint_min_set(ad->map, max, max);
 	evas_object_size_hint_weight_set(ad->map, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -342,16 +362,16 @@ app_create(void *data)
 	if( stat(DIR, &buf) == -1 ){
 		mkdir(DIR, 0777);
 		mkdir(DIR_TRK, 0777);
-		mkdir(DIR_MAPS, 0777);
+		/*mkdir(DIR_MAPS, 0777);
 		for(int i=1; i<15;i++){
 			char bufd[128];
 			sprintf(bufd, DIR_MAPS"/%d", i);
 			mkdir(bufd, 0777);
-		}
+		}*/
 	}else{
 		if( stat(DIR_TRK, &buf) == -1 )
 			mkdir(DIR_TRK, 0777);
-		if( stat(DIR_MAPS, &buf) == -1 ){
+		/*if( stat(DIR_MAPS, &buf) == -1 ){
 			mkdir(DIR_MAPS, 0777);
 			for(int i=1; i<15;i++){
 				char bufd[128];
@@ -365,7 +385,7 @@ app_create(void *data)
 				if( stat(bufd, &buf) == -1 )
 					mkdir(bufd, 0777);
 			}
-		}
+		}*/
 	}
 	return true;
 }

@@ -1,4 +1,4 @@
-#include <download.h>
+/*#include <download.h>
 #include "visor.h"
 #include "calcfunctions.h"
 #include "config.h"
@@ -10,21 +10,21 @@ typedef struct {
 	double altitude;
 	int zoom;
 	Evas_Object *img;
-}_visor;
+}_visor;*/
 
-struct{
+/*struct{
 	download_error_e download;
 	download_state_e state;
 	int download_id;
-}downloader;
+}downloader;*/
 
-_visor *visor;
+/*_visor *visor;
 
 void setStuctPtr(void *v){
 	visor =(_visor*) v;
-}
+}*/
 
-void downloadFile(){
+/*void downloadFile(){
 	//Temporal trick
 	char apikey[] = APIKEY;
 	    	char bufLink[512];
@@ -51,4 +51,4 @@ void setView(void *user_data){//temporal trick
 	    	    	sprintf(bufd, DIR_MAPS"/%d/map.png",visor->zoom);
 	    	    	//evas_object_image_file_set(ad->visor.img, bufd, NULL);
 	    	    }
-}
+}*/
