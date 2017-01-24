@@ -44,6 +44,12 @@ typedef struct appdata {
 	Evas_Object *map;
 } appdata_s;
 
+void
+position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data);
+
+void
+position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data);
+
 #ifdef  LOG_TAG
 #undef  LOG_TAG
 #endif
