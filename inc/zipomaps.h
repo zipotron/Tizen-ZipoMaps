@@ -14,6 +14,12 @@ typedef struct appdata {
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
 	Evas_Object *sliderInterval;
+	Evas_Object *btn_on;
+	Evas_Object *btn_off;
+	Evas_Object *btn_exit;
+	Evas_Object *btn_record;
+	Evas_Object *btn_stop;
+	Evas_Object *btn_point;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;
@@ -36,6 +42,7 @@ typedef struct appdata {
 		double latitude;
 		double longitude;
 		double altitude;
+		time_t timestamp;
 		//int zoom;
 	}visor;
 	int interval;
@@ -43,6 +50,10 @@ typedef struct appdata {
 	//Evas_Object *img;
 	Evas_Object *map;
 } appdata_s;
+
+void stop_gps(appdata_s *ad);
+
+void start_gps(appdata_s *ad);
 
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data);

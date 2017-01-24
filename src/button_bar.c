@@ -6,16 +6,6 @@
 void
 btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
-	appdata_s *ad = data;
-	char *result;
-	//location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
-	result = xmlwriterWriteTrackDoc(DIR_TRK FILETRACK, ad);
-	elm_object_text_set(ad->labelGps, result);
-	free(result);
-	if(ad->xml.docWpt){
-		result = xmlwriterWriteWptDoc(DIR_TRK FILEWPT, ad);
-		free(result);
-	}
 	ui_app_exit();
 }
 
@@ -42,12 +32,78 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	appdata_s *ad = data;
 
 	evas_object_hide(ad->sliderInterval);
-	evas_object_smart_callback_add(obj, "clicked", btn_point_clicked_cb, ad);
+	evas_object_hide(ad->btn_record);
+	evas_object_show(ad->btn_point);
+	evas_object_hide(ad->btn_off);
+	evas_object_show(ad->btn_stop);
 	char *result;
 	result = xmlwriterCreateTrackDoc(ad);
 	/*elm_object_text_set(obj, result);*/
-	elm_object_text_set(obj, "Way point");
 	free(result);
 
 	location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
+}
+
+void
+btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	start_gps(ad);
+	evas_object_show(ad->sliderInterval);
+	evas_object_hide(ad->btn_exit);
+	evas_object_show(ad->btn_off);
+	evas_object_hide(ad->btn_on);
+	evas_object_show(ad->btn_record);
+	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+}
+
+void
+btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	evas_object_hide(ad->sliderInterval);
+	evas_object_hide(ad->btn_off);
+	evas_object_show(ad->btn_exit);
+	evas_object_hide(ad->btn_record);
+	evas_object_show(ad->btn_on);
+	stop_gps(ad);
+}
+
+void
+btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	evas_object_show(ad->sliderInterval);
+	evas_object_hide(ad->btn_stop);
+	evas_object_show(ad->btn_off);
+	evas_object_hide(ad->btn_point);
+	evas_object_show(ad->btn_record);
+	char *result;
+	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+
+	//struct stat buf;
+
+	char timestring[26];
+	strftime(timestring, 26, "%Y-%m-%d %H:%M:%S", &(ad->visor.timestamp));
+
+	char bufd[128];
+	sprintf(bufd, "%s%s%s%s", DIR_TRK, FILETRACK, timestring, FILE_EXT);
+	if(ad->xml.docTrk){
+		result = xmlwriterWriteTrackDoc(bufd, ad);
+		elm_object_text_set(ad->labelGps, result);
+		free(result);
+	}
+	/*}else{
+		elm_object_text_set(ad->labelGps, "Error in system time");
+	}*/
+
+	sprintf(bufd, "%s%s%s%s", DIR_TRK, FILEWPT, timestring, FILE_EXT);
+	if(ad->xml.docWpt){
+		result = xmlwriterWriteWptDoc(bufd, ad);
+		elm_object_text_set(ad->labelGps, result);
+		free(result);
+	}
+	/*}else{
+		elm_object_text_set(ad->labelGps, "Error in system time");
+	}*/
 }

@@ -46,13 +46,19 @@ state_changed_cb(location_service_state_e state, void *user_data)
     elm_object_text_set(ad->labelGps, buf);
 }
 
-static void
-show_state(appdata_s *ad)
+void
+start_gps(appdata_s *ad)
 {
 	dlog_print(DLOG_INFO, "tag", "%s", __func__);
     location_manager_create(LOCATIONS_METHOD_GPS, &ad->manager);
     location_manager_set_service_state_changed_cb(ad->manager, state_changed_cb, ad);
     location_manager_start(ad->manager);
+}
+
+void
+stop_gps(appdata_s *ad)
+{
+    location_manager_stop(ad->manager);
 }
 
 static void
@@ -63,18 +69,19 @@ show_map_point(void *user_data){
 }
 
 static void
-set_position(double latitude, double longitude, double altitude, void *user_data){
+set_position(double latitude, double longitude, double altitude, time_t timestamp, void *user_data){
 	appdata_s *ad = user_data;
 	ad->visor.latitude = latitude;
 	ad->visor.longitude = longitude;
 	ad->visor.altitude = altitude;
+	ad->visor.timestamp = timestamp;
 }
 
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
     appdata_s *ad = user_data;
-    set_position(latitude, longitude, altitude, ad);
+    set_position(latitude, longitude, altitude, timestamp, ad);
     //show_map_point(ad);
 
     char buf[100];
@@ -104,7 +111,7 @@ void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
     appdata_s *ad = user_data;
-    set_position(latitude, longitude, altitude, ad);
+    set_position(latitude, longitude, altitude, timestamp, ad);
     show_map_point(ad);
 
     char *result;
@@ -189,7 +196,7 @@ create_base_gui(appdata_s *ad)
 	elm_win_resize_object_add(ad->win, ad->conform);
 	evas_object_show(ad->conform);
 
-	Evas_Object *table, *btn_exit, *btn_record;//, *btn_config;
+	Evas_Object *table;
 	table = elm_table_add(ad->win);
 	//elm_table_padding_set(table, 100, 0);
 
@@ -256,7 +263,6 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_align_set(ad->sliderInterval, EVAS_HINT_FILL, 0.5);
 	evas_object_color_set(ad->sliderInterval, 0, 200, 0, 255);
 	elm_table_pack(table, ad->sliderInterval,0,7,4,1);
-	evas_object_show(ad->sliderInterval);
 
 	/*ad->sliderZoom = elm_slider_add(table);
 	elm_slider_min_max_set(ad->sliderZoom, 1, 14);
@@ -272,32 +278,69 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->sliderZoom);*/
 
 	/* Button exit*/
-	btn_exit = elm_button_add(table);
-	elm_object_text_set(btn_exit, "Exit");
-	evas_object_smart_callback_add(btn_exit, "clicked", btn_exit_clicked_cb, ad);
-	evas_object_size_hint_weight_set(btn_exit, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(btn_exit, EVAS_HINT_FILL, 0.5);
+	ad->btn_exit = elm_button_add(table);
+	elm_object_text_set(ad->btn_exit, "Exit");
+	evas_object_smart_callback_add(ad->btn_exit, "clicked", btn_exit_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_exit, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_exit, EVAS_HINT_FILL, 0.5);
 
-	evas_object_color_set(btn_exit, 200, 0, 0, 255);
+	evas_object_color_set(ad->btn_exit, 200, 0, 0, 255);
 
-	elm_table_pack(table, btn_exit,0,9,2,1);
-	evas_object_show(btn_exit);
+	elm_table_pack(table, ad->btn_exit,0,9,2,1);
+	evas_object_show(ad->btn_exit);
 
-	/* Button start*/
-	btn_record = elm_button_add(table);
-	elm_object_text_set(btn_record, "Record");
-	evas_object_smart_callback_add(btn_record, "clicked", btn_record_clicked_cb, ad);
-	evas_object_size_hint_weight_set(btn_record, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(btn_record, EVAS_HINT_FILL, 0.5);
+	/* Button gps on*/
+	ad->btn_on = elm_button_add(table);
+	elm_object_text_set(ad->btn_on, "GPS on");
+	evas_object_smart_callback_add(ad->btn_on, "clicked", btn_gps_on_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_on, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_on, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, btn_record,2,9,2,1);
-	evas_object_show(btn_record);
+	elm_table_pack(table, ad->btn_on,2,9,2,1);
+	evas_object_show(ad->btn_on);
+
+	/* Button gps off*/
+	ad->btn_off = elm_button_add(table);
+	elm_object_text_set(ad->btn_off, "GPS off");
+	evas_object_smart_callback_add(ad->btn_off, "clicked", btn_gps_off_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_off, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_off, EVAS_HINT_FILL, 0.5);
+
+	evas_object_color_set(ad->btn_off, 200, 0, 0, 255);
+
+	elm_table_pack(table, ad->btn_off,0,9,2,1);
+
+	/* Button record*/
+	ad->btn_record = elm_button_add(table);
+	elm_object_text_set(ad->btn_record, "Record");
+	evas_object_smart_callback_add(ad->btn_record, "clicked", btn_record_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_record, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_record, EVAS_HINT_FILL, 0.5);
+
+	elm_table_pack(table, ad->btn_record,2,9,2,1);
+
+	/* Button stop*/
+	ad->btn_stop = elm_button_add(table);
+	elm_object_text_set(ad->btn_stop, "Stop");
+	evas_object_smart_callback_add(ad->btn_stop, "clicked", btn_stop_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_stop, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_stop, EVAS_HINT_FILL, 0.5);
+
+	evas_object_color_set(ad->btn_stop, 200, 0, 0, 255);
+
+	elm_table_pack(table, ad->btn_stop,0,9,2,1);
+
+	/* Button point*/
+	ad->btn_point = elm_button_add(table);
+	elm_object_text_set(ad->btn_point, "Point");
+	evas_object_smart_callback_add(ad->btn_point, "clicked", btn_point_clicked_cb, ad);
+	evas_object_size_hint_weight_set(ad->btn_point, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->btn_point, EVAS_HINT_FILL, 0.5);
+
+	elm_table_pack(table, ad->btn_point,2,9,2,1);
 
 	/* Show window after base gui is set up */
 	evas_object_show(ad->win);
-
-	show_state(ad);
-	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 }
 
 static bool
