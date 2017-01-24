@@ -183,7 +183,7 @@ char
 	int rc;
 	appdata_s *ad = data;
 	char *buf =(char *) malloc(100 * sizeof(char));
-	char *tbuf =(char *) calloc(22, sizeof(char));
+	char tbuf[22];
 	sprintf(buf,"OK\n");
 
     /* Start track */
@@ -217,7 +217,6 @@ char
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
     /* End of track*/
-    free(tbuf);
 
     return buf;
 }

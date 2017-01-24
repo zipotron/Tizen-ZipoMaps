@@ -83,8 +83,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 
 	//struct stat buf;
 
-	char timestring[26];
-	strftime(timestring, 26, "%Y-%m-%d %H:%M:%S", &(ad->visor.timestamp));
+	char timestring[22];
+	strftime(timestring, 21, "_%Y-%m-%d-%H:%M:%S", localtime(&(ad->visor.timestamp)));
 
 	char bufd[128];
 	sprintf(bufd, "%s%s%s%s", DIR_TRK, FILETRACK, timestring, FILE_EXT);

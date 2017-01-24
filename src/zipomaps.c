@@ -185,6 +185,14 @@ create_base_gui(appdata_s *ad)
 	evas_object_smart_callback_add(ad->win, "delete,request", win_delete_request_cb, NULL);
 	eext_object_event_callback_add(ad->win, EEXT_CALLBACK_BACK, win_back_cb, ad);
 
+	Evas_Object *bg;
+	char f_bg[48];
+	sprintf(f_bg, "%sbg.jpg", app_get_resource_path());
+
+	bg = elm_bg_add(ad->win);
+	elm_bg_file_set(bg, f_bg, NULL);
+	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);
+
 	/* Conformant */
 	/* Create and initialize elm_conformant.
 	   elm_conformant is mandatory for base gui to have proper size
@@ -247,7 +255,8 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->labelCalc);
 
 	ad->labelDist = elm_label_add(table);
-	elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
+	//elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
+	elm_object_text_set(ad->labelDist, f_bg);
 
 	elm_table_pack(table, ad->labelDist,0,6,4,1);
 	evas_object_show(ad->labelDist);
