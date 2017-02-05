@@ -10,6 +10,13 @@ btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
+btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	evas_object_show(ad->popup_info);
+}
+
+void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
@@ -106,4 +113,10 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	/*}else{
 		elm_object_text_set(ad->labelGps, "Error in system time");
 	}*/
+}
+
+void info_popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	elm_popup_dismiss(ad->popup_info);
 }

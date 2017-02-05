@@ -9,3 +9,5 @@
 #define FILE_EXT ".gpx"
 
 //#define APIKEY "f23adf67ad974aa38a80c8a94b114e44";
+
+#define INFO "This is a GPS Tracker"

@@ -185,13 +185,13 @@ create_base_gui(appdata_s *ad)
 	evas_object_smart_callback_add(ad->win, "delete,request", win_delete_request_cb, NULL);
 	eext_object_event_callback_add(ad->win, EEXT_CALLBACK_BACK, win_back_cb, ad);
 
-	Evas_Object *bg;
+	/*Evas_Object *bg;
 	char f_bg[48];
 	sprintf(f_bg, "%sbg.jpg", app_get_resource_path());
 
 	bg = elm_bg_add(ad->win);
 	elm_bg_file_set(bg, f_bg, NULL);
-	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);
+	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);*/
 
 	/* Conformant */
 	/* Create and initialize elm_conformant.
@@ -239,6 +239,31 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_align_set(ad->map, EVAS_HINT_FILL, 0.5);
 	elm_table_pack(table, ad->map, 0,0,4,4);
 	evas_object_show(ad->map);
+
+	Evas_Object *ic;
+	ic = elm_icon_add(ad->btn_info);
+	elm_image_file_set(ic, "info.png", NULL);
+
+	ad->btn_info = elm_button_add(table);
+
+	evas_object_smart_callback_add(ad->btn_info, "clicked", btn_info_clicked_cb, ad);
+
+	elm_table_pack(table, ad->btn_info,0,0,2,1);
+	evas_object_show(ad->btn_info);
+	evas_object_color_set(ad->btn_info, 0, 0, 0, 64);
+	elm_object_style_set(ad->btn_info,"circle");
+	elm_object_part_content_set(ad->btn_info, "icon", ic);
+
+	ad->popup_info = elm_popup_add(ad->conform);
+	elm_popup_align_set(ad->popup_info, ELM_NOTIFY_ALIGN_FILL, 1.0);
+	evas_object_size_hint_weight_set(ad->popup_info, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_object_text_set(ad->popup_info, INFO);
+
+	Evas_Object *button_popup;
+	button_popup = elm_button_add(ad->popup_info);
+	elm_object_text_set(button_popup, "OK");
+	evas_object_smart_callback_add(button_popup, "clicked", info_popup_exit_cb, ad);
+	elm_object_part_content_set(ad->popup_info, "button1", button_popup);
 	/* Label */
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */
@@ -255,8 +280,8 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->labelCalc);
 
 	ad->labelDist = elm_label_add(table);
-	//elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
-	elm_object_text_set(ad->labelDist, f_bg);
+	elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
+	//elm_object_text_set(ad->labelDist, f_bg);
 
 	elm_table_pack(table, ad->labelDist,0,6,4,1);
 	evas_object_show(ad->labelDist);

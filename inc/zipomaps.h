@@ -20,6 +20,8 @@ typedef struct appdata {
 	Evas_Object *btn_record;
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
+	Evas_Object *btn_info;
+	Evas_Object *popup_info;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;
