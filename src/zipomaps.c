@@ -195,8 +195,8 @@ create_base_gui(appdata_s *ad)
 	//ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
-		int rots[4] = { 0, 90, 180, 270 };
-		elm_win_wm_rotation_available_rotations_set(ad->win, (const int *)(&rots), 4);
+		int rots[2] = { 0, 180 };
+		elm_win_wm_rotation_available_rotations_set(ad->win, (const int *)(&rots), 2);
 	}
 
 	evas_object_smart_callback_add(ad->win, "delete,request", win_delete_request_cb, NULL);
@@ -273,7 +273,8 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->btn_info,0,0,2,1);
 	evas_object_show(ad->btn_info);
 	evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
-	elm_object_style_set(ad->btn_info,"circle");
+	//elm_object_style_set(ad->btn_info,"circle");
+	elm_object_text_set(ad->btn_info, "i");
 	//elm_object_part_content_set(ad->btn_info, "icon", ic);
 
 	ad->popup_info = elm_popup_add(ad->conform);
