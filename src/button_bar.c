@@ -118,5 +118,5 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 void info_popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	elm_popup_dismiss(ad->popup_info);
+	evas_object_hide(ad->popup_info);
 }

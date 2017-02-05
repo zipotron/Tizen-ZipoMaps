@@ -240,9 +240,9 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->map, 0,0,4,4);
 	evas_object_show(ad->map);
 
-	Evas_Object *ic;
+	/*Evas_Object *ic;
 	ic = elm_icon_add(ad->btn_info);
-	elm_image_file_set(ic, "info.png", NULL);
+	elm_image_file_set(ic, "info.png", NULL);*/
 
 	ad->btn_info = elm_button_add(table);
 
@@ -252,7 +252,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->btn_info);
 	evas_object_color_set(ad->btn_info, 0, 0, 0, 64);
 	elm_object_style_set(ad->btn_info,"circle");
-	elm_object_part_content_set(ad->btn_info, "icon", ic);
+	//elm_object_part_content_set(ad->btn_info, "icon", ic);
 
 	ad->popup_info = elm_popup_add(ad->conform);
 	elm_popup_align_set(ad->popup_info, ELM_NOTIFY_ALIGN_FILL, 1.0);
