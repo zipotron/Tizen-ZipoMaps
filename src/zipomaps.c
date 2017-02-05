@@ -160,6 +160,23 @@ slider_Zoom_changed_cb(void *data, Evas_Object *obj, void *event_info)
     ad->visor.zoom = elm_slider_value_get(obj);
 }*/
 
+static void app_get_resource(const char *res_file_in, char *res_path_out, int res_path_max)
+{
+    char *res_path = app_get_resource_path();
+    if (res_path) {
+        snprintf(res_path_out, res_path_max, "%s%s", res_path, res_file_in);
+        free(res_path);
+    }
+}
+
+static void my_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
+{
+   evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_size_hint_weight_set(child, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   elm_table_pack(table, child, x, y, w, h);
+   evas_object_show(child);
+}
+
 static void
 create_base_gui(appdata_s *ad)
 {
@@ -185,13 +202,14 @@ create_base_gui(appdata_s *ad)
 	evas_object_smart_callback_add(ad->win, "delete,request", win_delete_request_cb, NULL);
 	eext_object_event_callback_add(ad->win, EEXT_CALLBACK_BACK, win_back_cb, ad);
 
-	/*Evas_Object *bg;
-	char f_bg[48];
-	sprintf(f_bg, "%sbg.jpg", app_get_resource_path());
+	Evas_Object *bg;
+	char f_bg[PATH_MAX];
+	//sprintf(f_bg, "%sbg.jpg", app_get_resource_path());
+	app_get_resource("bg.jpg", f_bg, (int)PATH_MAX);
 
 	bg = elm_bg_add(ad->win);
 	elm_bg_file_set(bg, f_bg, NULL);
-	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);*/
+	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);
 
 	/* Conformant */
 	/* Create and initialize elm_conformant.
@@ -210,6 +228,8 @@ create_base_gui(appdata_s *ad)
 
 	elm_object_content_set(ad->conform, table);
 	evas_object_show(table);
+
+	my_table_pack(table, bg, 0, 0, 4, 10);
 
 	/* Image */
 	/*Evas *canvas = evas_object_evas_get(ad->win);
@@ -241,8 +261,10 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->map);
 
 	/*Evas_Object *ic;
+	char bt_info_img[PATH_MAX];
 	ic = elm_icon_add(ad->btn_info);
-	elm_image_file_set(ic, "info.png", NULL);*/
+	app_get_resource("info.png", bt_info_img, (int)PATH_MAX);
+	elm_image_file_set(ic, bt_info_img, NULL);*/
 
 	ad->btn_info = elm_button_add(table);
 
@@ -250,7 +272,7 @@ create_base_gui(appdata_s *ad)
 
 	elm_table_pack(table, ad->btn_info,0,0,2,1);
 	evas_object_show(ad->btn_info);
-	evas_object_color_set(ad->btn_info, 0, 0, 0, 64);
+	evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
 	elm_object_style_set(ad->btn_info,"circle");
 	//elm_object_part_content_set(ad->btn_info, "icon", ic);
 
