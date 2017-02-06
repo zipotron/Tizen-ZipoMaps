@@ -260,22 +260,23 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->map, 0,0,4,4);
 	evas_object_show(ad->map);
 
-	/*Evas_Object *ic;
-	char bt_info_img[PATH_MAX];
-	ic = elm_icon_add(ad->btn_info);
-	app_get_resource("info.png", bt_info_img, (int)PATH_MAX);
-	elm_image_file_set(ic, bt_info_img, NULL);*/
-
-	ad->btn_info = elm_button_add(table);
-
+	ad->btn_info = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_info,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_info,-1.0,1.0);
+	elm_object_style_set(ad->btn_info, "circle");
+	elm_object_text_set(ad->btn_info,"Info");
 	evas_object_smart_callback_add(ad->btn_info, "clicked", btn_info_clicked_cb, ad);
-
-	elm_table_pack(table, ad->btn_info,0,0,2,1);
-	evas_object_show(ad->btn_info);
 	evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
-	//elm_object_style_set(ad->btn_info,"circle");
-	elm_object_text_set(ad->btn_info, "i");
-	//elm_object_part_content_set(ad->btn_info, "icon", ic);
+	evas_object_show(ad->btn_info);
+	elm_table_pack(table, ad->btn_info,0,0,2,1);
+
+	Evas_Object *ic;
+	char bt_info_img[PATH_MAX];
+	app_get_resource("info.png", bt_info_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_info);
+	elm_image_file_set(ic,bt_info_img,NULL);
+	elm_object_part_content_set(ad->btn_info,"icon",ic);
+	evas_object_show(ic);
 
 	ad->popup_info = elm_popup_add(ad->conform);
 	elm_popup_align_set(ad->popup_info, ELM_NOTIFY_ALIGN_FILL, 1.0);
