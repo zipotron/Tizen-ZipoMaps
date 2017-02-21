@@ -186,6 +186,8 @@ create_base_gui(appdata_s *ad)
 	ad->win = elm_win_util_standard_add(PACKAGE, PACKAGE);
 	elm_win_autodel_set(ad->win, EINA_TRUE);
 
+	ad->visor.latitude = 39.576;
+	ad->visor.longitude = 2.665;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = 0;
 	ad->xml.docWpt = NULL;
@@ -259,6 +261,8 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_align_set(ad->map, EVAS_HINT_FILL, 0.5);
 	elm_table_pack(table, ad->map, 0,0,4,4);
 	evas_object_show(ad->map);
+
+	elm_map_region_show(ad->map, ad->visor.longitude, ad->visor.latitude);
 
 	ad->btn_info = elm_button_add(ad->conform);
 	evas_object_size_hint_weight_set(ad->btn_info,0.0,1.0);
