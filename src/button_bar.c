@@ -61,6 +61,7 @@ btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_show(ad->btn_off);
 	evas_object_hide(ad->btn_on);
 	evas_object_show(ad->btn_record);
+	evas_object_hide(ad->btn_info);
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 }
 
@@ -73,6 +74,7 @@ btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_show(ad->btn_exit);
 	evas_object_hide(ad->btn_record);
 	evas_object_show(ad->btn_on);
+	evas_object_show(ad->btn_info);
 	stop_gps(ad);
 }
 

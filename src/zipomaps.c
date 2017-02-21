@@ -85,10 +85,10 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     //show_map_point(ad);
 
     char buf[100];
-    sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f", latitude, longitude, altitude);
+    sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
     elm_object_text_set(ad->labelGps, buf);
 
-    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed);
+    sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed, LABELFORMATEND);
     elm_object_text_set(ad->labelCalc, buf);
 
     //Temporal trick
@@ -118,7 +118,7 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     char buf[100];
 
     result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
-    sprintf(buf, "Pos:%0.5f/%0.5f Alt:%0.1f - %s", latitude, longitude, altitude, result);
+    sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f - %s%s", LABELFORMATSTART, latitude, longitude, altitude, result, LABELFORMATEND);
 
     if(ad->xml.writeNextWpt){
     	free(result);
@@ -127,9 +127,9 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     }
 
     elm_object_text_set(ad->labelGps, buf);
-    sprintf(buf, "Speed:%0.1f m/s - Max:%0.1f m/s", speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed);
+    sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed, LABELFORMATEND);
     elm_object_text_set(ad->labelCalc, buf);
-    sprintf(buf, "Total Distance:%0.1f", ad->tracker.distance);
+    sprintf(buf, "%sTotal Distance:%0.1f%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
     elm_object_text_set(ad->labelDist, buf);
     free(result);
 
@@ -292,19 +292,19 @@ create_base_gui(appdata_s *ad)
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */
 	ad->labelGps = elm_label_add(table);
-	elm_object_text_set(ad->labelGps, "<align=center>Waiting GPS status</align>");
+	elm_object_text_set(ad->labelGps, LABELFORMATSTART "Waiting GPS status" LABELFORMATEND);
 
 	elm_table_pack(table, ad->labelGps,0,4,4,1);
 	evas_object_show(ad->labelGps);
 
 	ad->labelCalc = elm_label_add(table);
-	elm_object_text_set(ad->labelCalc, "<align=center>GPS Tracker</align>");
+	elm_object_text_set(ad->labelCalc, LABELFORMATSTART "GPS Tracker" LABELFORMATEND);
 
 	elm_table_pack(table, ad->labelCalc,0,5,4,1);
 	evas_object_show(ad->labelCalc);
 
 	ad->labelDist = elm_label_add(table);
-	elm_object_text_set(ad->labelDist, "<align=center>By Zipotron</align>");
+	elm_object_text_set(ad->labelDist, LABELFORMATSTART "By Zipotron" LABELFORMATEND);
 	//elm_object_text_set(ad->labelDist, f_bg);
 
 	elm_table_pack(table, ad->labelDist,0,6,4,1);

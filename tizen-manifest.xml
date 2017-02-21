@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.zipotron.zipomaps" version="0.0.1">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.zipotron.zipomaps" version="0.0.2">
     <author email="zipotron@gmail.com" href="https://github.com/zipotron/Tizen-ZipoMaps">Zipotron</author>
     <description>GPS Tracker</description>
     <profile name="mobile"/>
