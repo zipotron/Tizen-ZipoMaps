@@ -64,8 +64,8 @@ stop_gps(appdata_s *ad)
 static void
 show_map_point(void *user_data){
 	appdata_s *ad = user_data;
-	//elm_map_zoom_set(ad->map, ad->visor.zoom);
-	elm_map_region_show(ad->map, ad->visor.longitude, ad->visor.latitude);
+	//elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
+	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
 }
 
 static void
@@ -251,18 +251,19 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->img, 0,0,4,4);
 	evas_object_show(ad->img);*/
 
-	ad->map = elm_map_add(ad->conform);
-	elm_map_zoom_mode_set(ad->map, ELM_MAP_ZOOM_MODE_MANUAL);
-	elm_map_zoom_set(ad->map, 12);
+	ad->map.mapService = elm_map_add(ad->conform);
+	elm_map_zoom_mode_set(ad->map.mapService, ELM_MAP_ZOOM_MODE_MANUAL);
+	elm_map_zoom_set(ad->map.mapService, 12);
 
-	evas_object_size_hint_max_set(ad->map, max, max);
-	evas_object_size_hint_min_set(ad->map, max, max);
-	evas_object_size_hint_weight_set(ad->map, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(ad->map, EVAS_HINT_FILL, 0.5);
-	elm_table_pack(table, ad->map, 0,0,4,4);
-	evas_object_show(ad->map);
+	evas_object_size_hint_max_set(ad->map.mapService, max, max);
+	evas_object_size_hint_min_set(ad->map.mapService, max, max);
+	evas_object_size_hint_weight_set(ad->map.mapService, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(ad->map.mapService, EVAS_HINT_FILL, 0.5);
+	elm_table_pack(table, ad->map.mapService, 0,0,4,4);
+	evas_object_show(ad->map.mapService);
 
-	elm_map_region_show(ad->map, ad->visor.longitude, ad->visor.latitude);
+	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+	ad->map.scale = elm_map_overlay_scale_add(ad->map.mapService, (max*2)/3, max - 20);
 
 	ad->btn_info = elm_button_add(ad->conform);
 	evas_object_size_hint_weight_set(ad->btn_info,0.0,1.0);

@@ -50,7 +50,10 @@ typedef struct appdata {
 	int interval;
 	location_manager_h manager;
 	//Evas_Object *img;
-	Evas_Object *map;
+	struct{
+		Evas_Object *mapService;
+		Elm_Map_Overlay *scale;
+	}map;
 } appdata_s;
 
 void stop_gps(appdata_s *ad);
