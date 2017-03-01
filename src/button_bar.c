@@ -20,6 +20,7 @@ void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
+
 	static int counter = 0;
 	if(!ad->xml.writeNextWpt){
 		char *result;

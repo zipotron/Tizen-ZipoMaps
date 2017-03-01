@@ -66,6 +66,13 @@ show_map_point(void *user_data){
 	appdata_s *ad = user_data;
 	//elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+	if(!ad->map.ovl){
+		Evas_Object *icon;
+		ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+		icon = elm_icon_add(ad->map.mapService);
+		elm_icon_standard_set(icon, "home");
+		elm_map_overlay_icon_set(ad->map.ovl, icon);
+	}
 }
 
 static void
@@ -124,6 +131,12 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     	free(result);
     	result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
     	ad->xml.writeNextWpt = 0;
+
+    	Evas_Object *icon;
+    	ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+    	icon = elm_icon_add(ad->map.mapService);
+    	elm_icon_standard_set(icon, "stop");
+    	elm_map_overlay_icon_set(ad->map.ovl, icon);
     }
 
     elm_object_text_set(ad->labelGps, buf);
@@ -194,6 +207,7 @@ create_base_gui(appdata_s *ad)
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
 	ad->tracker.maxAcceleration = 15;
+	ad->map.ovl = NULL;
 	//ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
