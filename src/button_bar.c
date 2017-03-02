@@ -49,6 +49,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	/*elm_object_text_set(obj, result);*/
 	free(result);
 
+	ad->map.recording = true;
 	location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
 }
 
@@ -89,7 +90,9 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_hide(ad->btn_point);
 	evas_object_show(ad->btn_record);
 	char *result;
+
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+	ad->map.recording = false;
 
 	//struct stat buf;
 

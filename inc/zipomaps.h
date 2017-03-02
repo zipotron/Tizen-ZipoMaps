@@ -54,6 +54,7 @@ typedef struct appdata {
 		Evas_Object *mapService;
 		Elm_Map_Overlay *scale;
 		Elm_Map_Overlay *ovl;
+		bool recording;
 	}map;
 } appdata_s;
 

@@ -78,6 +78,9 @@ show_map_point(void *user_data){
 static void
 set_position(double latitude, double longitude, double altitude, time_t timestamp, void *user_data){
 	appdata_s *ad = user_data;
+	if((ad->map.recording) && (ad->visor.latitude != 500)){
+		ad->map.ovl = elm_map_overlay_line_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude, longitude, latitude);
+	}
 	ad->visor.latitude = latitude;
 	ad->visor.longitude = longitude;
 	ad->visor.altitude = altitude;
@@ -135,7 +138,7 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     	Evas_Object *icon;
     	ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
     	icon = elm_icon_add(ad->map.mapService);
-    	elm_icon_standard_set(icon, "stop");
+    	elm_icon_standard_set(icon, "clock");
     	elm_map_overlay_icon_set(ad->map.ovl, icon);
     }
 
@@ -199,8 +202,8 @@ create_base_gui(appdata_s *ad)
 	ad->win = elm_win_util_standard_add(PACKAGE, PACKAGE);
 	elm_win_autodel_set(ad->win, EINA_TRUE);
 
-	ad->visor.latitude = 39.576;
-	ad->visor.longitude = 2.665;
+	ad->visor.latitude = 500;
+	ad->visor.longitude = 0;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = 0;
 	ad->xml.docWpt = NULL;
@@ -208,6 +211,7 @@ create_base_gui(appdata_s *ad)
 	ad->tracker.distance = 0;
 	ad->tracker.maxAcceleration = 15;
 	ad->map.ovl = NULL;
+	ad->map.recording = false;
 	//ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
@@ -276,7 +280,7 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->map.mapService, 0,0,4,4);
 	evas_object_show(ad->map.mapService);
 
-	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+	elm_map_region_show(ad->map.mapService, 2.665, 39.576);
 	ad->map.scale = elm_map_overlay_scale_add(ad->map.mapService, (max*2)/3, max - 20);
 
 	ad->btn_info = elm_button_add(ad->conform);
