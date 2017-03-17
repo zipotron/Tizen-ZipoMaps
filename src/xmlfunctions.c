@@ -92,27 +92,33 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
-	if (rc < 0)
-	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement3\n");
+	if(ad->visor.latitude != 500){
+		rc = xmlTextWriterEndElement(ad->xml.writerTrk);
+		if (rc < 0)
+			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement3\n");
 
-	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
-	if (rc < 0)
-	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement2\n");
+		rc = xmlTextWriterEndElement(ad->xml.writerTrk);
+		if (rc < 0)
+			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement2\n");
 
-	rc = xmlTextWriterEndElement(ad->xml.writerTrk);
-	if (rc < 0)
-	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement1\n");
+		rc = xmlTextWriterEndElement(ad->xml.writerTrk);
+		if (rc < 0)
+			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement1\n");
 
-	rc = xmlTextWriterEndDocument(ad->xml.writerTrk);
-	if (rc < 0)
-	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+		rc = xmlTextWriterEndDocument(ad->xml.writerTrk);
+		if (rc < 0)
+			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+
+		xmlSaveFileEnc(file, ad->xml.docTrk, MY_ENCODING);
+	}
 
 	xmlFreeTextWriter(ad->xml.writerTrk);
 
-	xmlSaveFileEnc(file, ad->xml.docTrk, MY_ENCODING);
+	ad->xml.writerTrk = NULL;
 
 	xmlFreeDoc(ad->xml.docTrk);
+
+	ad->xml.docTrk = NULL;
 
 	return buf;
 }
@@ -125,15 +131,21 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	rc = xmlTextWriterEndDocument(ad->xml.writerWpt);
-	if (rc < 0)
-	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+	if(ad->visor.latitude != 500){
+		rc = xmlTextWriterEndDocument(ad->xml.writerWpt);
+		if (rc < 0)
+			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+
+		xmlSaveFileEnc(file, ad->xml.docWpt, MY_ENCODING);
+	}
 
 	xmlFreeTextWriter(ad->xml.writerWpt);
 
-	xmlSaveFileEnc(file, ad->xml.docWpt, MY_ENCODING);
+	ad->xml.writerWpt = NULL;
 
 	xmlFreeDoc(ad->xml.docWpt);
+
+	ad->xml.docWpt = NULL;
 
 	return buf;
 }
