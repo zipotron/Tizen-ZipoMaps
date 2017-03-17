@@ -22,6 +22,9 @@ btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	appdata_s *ad = data;
 
 	static int counter = 0;
+
+	if(ad->xml.writeNextWpt == -1) ad->xml.writeNextWpt = counter = 0;
+
 	if(!ad->xml.writeNextWpt){
 		char *result;
 
@@ -105,7 +108,6 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		result = xmlwriterWriteTrackDoc(bufd, ad);
 		elm_object_text_set(ad->labelGps, result);
 		free(result);
-		ad->xml.docTrk = NULL;
 	}
 	/*}else{
 		elm_object_text_set(ad->labelGps, "Error in system time");
@@ -116,11 +118,11 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		result = xmlwriterWriteWptDoc(bufd, ad);
 		elm_object_text_set(ad->labelGps, result);
 		free(result);
-		ad->xml.docWpt = NULL;
 	}
 	/*}else{
 		elm_object_text_set(ad->labelGps, "Error in system time");
 	}*/
+	ad->xml.writeNextWpt = -1;
 }
 
 void info_popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
