@@ -36,8 +36,10 @@ typedef struct appdata {
 	struct{
 		xmlTextWriterPtr volatile writerTrk;
 		xmlDocPtr volatile docTrk;
+		bool trkData;
 		xmlTextWriterPtr volatile writerWpt;
 		xmlDocPtr volatile docWpt;
+		bool wptData;
 		int writeNextWpt;
 	}xml;
 	struct{

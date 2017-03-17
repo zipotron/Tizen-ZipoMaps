@@ -92,7 +92,7 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	if(ad->visor.latitude != 500){
+	if(ad->xml.trkData){
 		rc = xmlTextWriterEndElement(ad->xml.writerTrk);
 		if (rc < 0)
 			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement3\n");
@@ -131,7 +131,7 @@ char
 	char *buf =(char *) malloc(100 * sizeof(char));
 	sprintf(buf,"OK\n");
 
-	if(ad->visor.latitude != 500){
+	if(ad->xml.wptData){
 		rc = xmlTextWriterEndDocument(ad->xml.writerWpt);
 		if (rc < 0)
 			sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
@@ -186,6 +186,8 @@ char
 	if (rc < 0)
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
+	ad->xml.wptData = true;
+
 	return buf;
 }
 
@@ -198,7 +200,6 @@ char
 	char tbuf[22];
 	sprintf(buf,"OK\n");
 
-    /* Start track */
     rc = xmlTextWriterStartElement(ad->xml.writerTrk, BAD_CAST "trkpt");
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
@@ -228,7 +229,7 @@ char
     if (rc < 0)
         sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
-    /* End of track*/
+    ad->xml.trkData = true;
 
     return buf;
 }

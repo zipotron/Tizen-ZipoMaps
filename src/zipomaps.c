@@ -78,7 +78,7 @@ show_map_point(void *user_data){
 static void
 set_position(double latitude, double longitude, double altitude, time_t timestamp, void *user_data){
 	appdata_s *ad = user_data;
-	if((ad->map.recording) && (ad->visor.latitude != 500)){
+	if((ad->map.recording) && (ad->xml.trkData)){
 		ad->map.ovl = elm_map_overlay_line_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude, longitude, latitude);
 	}
 	ad->visor.latitude = latitude;
@@ -202,11 +202,16 @@ create_base_gui(appdata_s *ad)
 	ad->win = elm_win_util_standard_add(PACKAGE, PACKAGE);
 	elm_win_autodel_set(ad->win, EINA_TRUE);
 
-	ad->visor.latitude = 500;
+	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = 0;
 	ad->xml.docWpt = NULL;
+	ad->xml.writerWpt = NULL;
+	ad->xml.wptData = false;
+	ad->xml.docTrk = NULL;
+	ad->xml.writerTrk = NULL;
+	ad->xml.trkData = false;
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
 	ad->tracker.maxAcceleration = 15;

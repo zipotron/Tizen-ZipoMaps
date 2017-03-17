@@ -122,6 +122,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	/*}else{
 		elm_object_text_set(ad->labelGps, "Error in system time");
 	}*/
+	ad->xml.trkData = false;
+	ad->xml.wptData = false;
 	ad->xml.writeNextWpt = -1;
 }
 
