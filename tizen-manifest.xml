@@ -13,6 +13,7 @@ This application is under Open Source License, and you can have the sources from
         <privilege>http://tizen.org/privilege/network.get</privilege>
         <privilege>http://tizen.org/privilege/location</privilege>
         <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://tizen.org/privilege/notification</privilege>
     </privileges>
     <feature name="http://tizen.org/feature/screen.size.normal.480.800">true</feature>
     <feature name="http://tizen.org/feature/screen.size.normal.720.1280">true</feature>

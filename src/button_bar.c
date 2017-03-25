@@ -2,6 +2,21 @@
 #include "zipomaps.h"
 #include "xmlfunctions.h"
 #include "config.h"
+#include <runtime_info.h>
+#include <notification.h>
+
+void gps_settings_changed_cb(runtime_info_key_e key, void *data){
+	appdata_s *ad = data;
+	bool gps_service_on = false;
+
+	runtime_info_get_value_bool(key, &gps_service_on);
+	if(!gps_service_on){
+		notification_status_message_post("Zipomaps is recording and GPS became disabled, please enable it for continue track.");
+		elm_object_text_set(ad->labelGps, "<+backing=on backing_color=#F33737 color=#000000><align=center>GPS is disabled!</align><br/>");
+	} else {
+		elm_object_text_set(ad->labelGps, "<+backing=on backing_color=#F7D358 color=#000000><align=center>Waiting GPS status</align><br/>");
+	}
+}
 
 void
 btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
@@ -20,20 +35,27 @@ void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
+	bool gps_service_on = false;
 
-	static int counter = 0;
+	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
 
-	if(ad->xml.writeNextWpt == -1) ad->xml.writeNextWpt = counter = 0;
+	if(gps_service_on){
+		static int counter = 0;
 
-	if(!ad->xml.writeNextWpt){
-		char *result;
+		if(ad->xml.writeNextWpt == -1) ad->xml.writeNextWpt = counter = 0;
 
-		if(counter == 0){
-			result = xmlwriterCreateWptDoc(ad);
-			free(result);
+		if(!ad->xml.writeNextWpt){
+			char *result;
+
+			if(counter == 0){
+				result = xmlwriterCreateWptDoc(ad);
+				free(result);
+			}
+			counter++;
+			ad->xml.writeNextWpt = counter;
 		}
-		counter++;
-		ad->xml.writeNextWpt = counter;
+	} else {
+		evas_object_show(ad->popup_gps_disabled);
 	}
 }
 
@@ -41,33 +63,49 @@ void
 btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
+	bool gps_service_on = false;
 
-	evas_object_hide(ad->sliderInterval);
-	evas_object_hide(ad->btn_record);
-	evas_object_show(ad->btn_point);
-	evas_object_hide(ad->btn_off);
-	evas_object_show(ad->btn_stop);
-	char *result;
-	result = xmlwriterCreateTrackDoc(ad);
-	/*elm_object_text_set(obj, result);*/
-	free(result);
+	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
 
-	ad->map.recording = true;
-	location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
+	if(gps_service_on){
+		evas_object_hide(ad->sliderInterval);
+		evas_object_hide(ad->btn_record);
+		evas_object_show(ad->btn_point);
+		evas_object_hide(ad->btn_off);
+		evas_object_show(ad->btn_stop);
+		char *result;
+		result = xmlwriterCreateTrackDoc(ad);
+		/*elm_object_text_set(obj, result);*/
+		free(result);
+
+		ad->map.recording = true;
+		location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
+	} else {
+		evas_object_show(ad->popup_gps_disabled);
+	}
 }
 
 void
 btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	start_gps(ad);
-	evas_object_show(ad->sliderInterval);
-	evas_object_hide(ad->btn_exit);
-	evas_object_show(ad->btn_off);
-	evas_object_hide(ad->btn_on);
-	evas_object_show(ad->btn_record);
-	evas_object_hide(ad->btn_info);
-	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+	bool gps_service_on = false;
+
+	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
+
+	if(gps_service_on){
+		start_gps(ad);
+		evas_object_show(ad->sliderInterval);
+		evas_object_hide(ad->btn_exit);
+		evas_object_show(ad->btn_off);
+		evas_object_hide(ad->btn_on);
+		evas_object_show(ad->btn_record);
+		evas_object_hide(ad->btn_info);
+		location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
+		runtime_info_set_changed_cb(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, gps_settings_changed_cb, ad);
+	} else {
+		evas_object_show(ad->popup_gps_disabled);
+	}
 }
 
 void
@@ -127,8 +165,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	ad->xml.writeNextWpt = -1;
 }
 
-void info_popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
+void popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
 {
-	appdata_s *ad = data;
-	evas_object_hide(ad->popup_info);
+	Evas_Object *popup = data;
+	evas_object_hide(popup);
 }
