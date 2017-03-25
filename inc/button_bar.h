@@ -21,4 +21,4 @@ btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info);
 void
 btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info);
 
-void info_popup_exit_cb(void *data, Evas_Object *obj, void *event_info);
+void popup_exit_cb(void *data, Evas_Object *obj, void *event_info);

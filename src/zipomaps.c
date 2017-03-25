@@ -314,8 +314,19 @@ create_base_gui(appdata_s *ad)
 	Evas_Object *button_popup;
 	button_popup = elm_button_add(ad->popup_info);
 	elm_object_text_set(button_popup, "OK");
-	evas_object_smart_callback_add(button_popup, "clicked", info_popup_exit_cb, ad);
+	evas_object_smart_callback_add(button_popup, "clicked", popup_exit_cb, ad->popup_info);
 	elm_object_part_content_set(ad->popup_info, "button1", button_popup);
+
+	ad->popup_gps_disabled = elm_popup_add(ad->conform);
+	elm_popup_align_set(ad->popup_gps_disabled, ELM_NOTIFY_ALIGN_FILL, 1.0);
+	evas_object_size_hint_weight_set(ad->popup_gps_disabled, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_object_text_set(ad->popup_gps_disabled, GPS_DISABLED_INFO);
+
+	Evas_Object *button_gps_disabled_popup;
+	button_gps_disabled_popup = elm_button_add(ad->popup_gps_disabled);
+	elm_object_text_set(button_gps_disabled_popup, "OK");
+	evas_object_smart_callback_add(button_gps_disabled_popup, "clicked", popup_exit_cb, ad->popup_gps_disabled);
+	elm_object_part_content_set(ad->popup_gps_disabled, "button1", button_gps_disabled_popup);
 	/* Label */
 	/* Create an actual view of the base gui.
 	   Modify this part to change the view. */
