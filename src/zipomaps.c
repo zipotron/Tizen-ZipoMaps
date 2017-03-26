@@ -90,16 +90,17 @@ set_position(double latitude, double longitude, double altitude, time_t timestam
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-    appdata_s *ad = user_data;
-    set_position(latitude, longitude, altitude, timestamp, ad);
-    //show_map_point(ad);
+	if(timestamp){
+		appdata_s *ad = user_data;
+		set_position(latitude, longitude, altitude, timestamp, ad);
+		//show_map_point(ad);
 
-    char buf[100];
-    sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
-    elm_object_text_set(ad->labelGps, buf);
+		char buf[100];
+		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
+		elm_object_text_set(ad->labelGps, buf);
 
-    sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed, LABELFORMATEND);
-    elm_object_text_set(ad->labelCalc, buf);
+		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed, LABELFORMATEND);
+		elm_object_text_set(ad->labelCalc, buf);
 
     //Temporal trick
     	/*char bufLink[512];
@@ -115,48 +116,51 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     	//ad->downloader.download = download_set_auto_download(download_id, true);
     	ad->downloader.download = download_start(ad->downloader.download_id);*/
     //Temporal trick end
+	}
 }
 
 void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-    appdata_s *ad = user_data;
-    set_position(latitude, longitude, altitude, timestamp, ad);
-    show_map_point(ad);
+	if(timestamp){
+		appdata_s *ad = user_data;
+		set_position(latitude, longitude, altitude, timestamp, ad);
+		show_map_point(ad);
 
-    char *result;
-    char buf[100];
+		char *result;
+		char buf[100];
 
-    result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
-    sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f - %s%s", LABELFORMATSTART, latitude, longitude, altitude, result, LABELFORMATEND);
+		result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
+		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f - %s%s", LABELFORMATSTART, latitude, longitude, altitude, result, LABELFORMATEND);
 
-    if(ad->xml.writeNextWpt){
-    	free(result);
-    	result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
-    	ad->xml.writeNextWpt = 0;
+		if(ad->xml.writeNextWpt){
+			free(result);
+			result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
+			ad->xml.writeNextWpt = 0;
 
-    	Evas_Object *icon;
-    	ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-    	icon = elm_icon_add(ad->map.mapService);
-    	elm_icon_standard_set(icon, "clock");
-    	elm_map_overlay_icon_set(ad->map.ovl, icon);
-    }
+			Evas_Object *icon;
+			ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+			icon = elm_icon_add(ad->map.mapService);
+			elm_icon_standard_set(icon, "clock");
+			elm_map_overlay_icon_set(ad->map.ovl, icon);
+		}
 
-    elm_object_text_set(ad->labelGps, buf);
-    sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed, LABELFORMATEND);
-    elm_object_text_set(ad->labelCalc, buf);
-    sprintf(buf, "%sTotal Distance:%0.1f%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
-    elm_object_text_set(ad->labelDist, buf);
-    free(result);
+		elm_object_text_set(ad->labelGps, buf);
+		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed, LABELFORMATEND);
+		elm_object_text_set(ad->labelCalc, buf);
+		sprintf(buf, "%sTotal Distance:%0.1f%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
+		elm_object_text_set(ad->labelDist, buf);
+		free(result);
 
-    /*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
-    if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
-    	ad->downloader.state = 0;
+		/*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
+    	if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
+    		ad->downloader.state = 0;
 
-    	char bufd[12];
-    	sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
-    	evas_object_image_file_set(ad->img, bufd, NULL);
-    }*/
+    		char bufd[12];
+    		sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
+    		evas_object_image_file_set(ad->img, bufd, NULL);
+    	}*/
+	}
 }
 
 static void
