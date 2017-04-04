@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.zipotron.zipomaps" version="0.0.2">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.zipotron.zipomapsWidget" version="0.0.2">
     <author email="zipotron@gmail.com" href="https://github.com/zipotron/Tizen-ZipoMaps">Zipotron</author>
     <description>GPS Tracker</description>
     <profile name="mobile"/>
-    <ui-application appid="org.zipotron.zipomaps" exec="zipomaps" launch_mode="single" multiple="false" nodisplay="false" taskmanage="true" type="capp">
-        <label>Zipomaps</label>
+    <widget-application appid="org.zipotron.zipomapsWidget" exec="zipomapswidget" main="true" update-period="0">
+        <label>ZipomapsWidget</label>
         <icon>appIcon.png</icon>
-    </ui-application>
+        <support-size preview="preview.png">2x2</support-size>
+    </widget-application>
     <privileges>
         <privilege>http://tizen.org/privilege/mediastorage</privilege>
         <privilege>http://tizen.org/privilege/network.get</privilege>

@@ -1,8 +1,9 @@
 #ifndef __zipomaps_H__
 #define __zipomaps_H__
 
-#include <app.h>
-#include <efl_extension.h>
+#include <widget_app.h>
+#include <widget_app_efl.h>
+#include <Elementary.h>
 #include <locations.h>
 //#include <download.h>
 #include <libxml/xmlwriter.h>
@@ -74,10 +75,10 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 #ifdef  LOG_TAG
 #undef  LOG_TAG
 #endif
-#define LOG_TAG "zipomaps"
+#define LOG_TAG "zipomapsWidget"
 
 #if !defined(PACKAGE)
-#define PACKAGE "org.zipotron.zipomaps"
+#define PACKAGE "org.zipotron.zipomapsWidget"
 #endif
 
 #endif /* __zipomaps_H__ */
