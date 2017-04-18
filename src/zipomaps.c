@@ -189,7 +189,7 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
     }
 }
 
-static void my_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
+static void bg_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
 {
    evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_weight_set(child, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -201,8 +201,6 @@ static void
 create_base_gui(appdata_s *ad)
 {
 	/* Window */
-	/* Create and initialize elm_win.
-	   elm_win is mandatory to manipulate window. */
 	ad->win = elm_win_util_standard_add(PACKAGE, PACKAGE);
 	elm_win_autodel_set(ad->win, EINA_TRUE);
 
@@ -233,7 +231,6 @@ create_base_gui(appdata_s *ad)
 
 	Evas_Object *bg;
 	char f_bg[PATH_MAX];
-	//sprintf(f_bg, "%sbg.jpg", app_get_resource_path());
 	app_get_resource("bg.jpg", f_bg, (int)PATH_MAX);
 
 	bg = elm_bg_add(ad->win);
@@ -241,9 +238,6 @@ create_base_gui(appdata_s *ad)
 	elm_bg_option_set(bg, ELM_BG_OPTION_STRETCH);
 
 	/* Conformant */
-	/* Create and initialize elm_conformant.
-	   elm_conformant is mandatory for base gui to have proper size
-	   when indicator or virtual keypad is visible. */
 	ad->conform = elm_conformant_add(ad->win);
 	elm_win_indicator_mode_set(ad->win, ELM_WIN_INDICATOR_SHOW);
 	elm_win_indicator_opacity_set(ad->win, ELM_WIN_INDICATOR_OPAQUE);
@@ -251,14 +245,12 @@ create_base_gui(appdata_s *ad)
 	elm_win_resize_object_add(ad->win, ad->conform);
 	evas_object_show(ad->conform);
 
-	Evas_Object *table;
-	table = elm_table_add(ad->win);
-	//elm_table_padding_set(table, 100, 0);
+	ad->table = elm_table_add(ad->win);
 
-	elm_object_content_set(ad->conform, table);
-	evas_object_show(table);
+	elm_object_content_set(ad->conform, ad->table);
+	evas_object_show(ad->table);
 
-	my_table_pack(table, bg, 0, 0, 4, 10);
+	bg_table_pack(ad->table, bg, 0, 0, 4, 10);
 
 	/* Image */
 	/*Evas *canvas = evas_object_evas_get(ad->win);
@@ -278,7 +270,7 @@ create_base_gui(appdata_s *ad)
 	elm_table_pack(table, ad->img, 0,0,4,4);
 	evas_object_show(ad->img);*/
 
-	ad->map.mapService = elm_map_add(ad->conform);
+	ad->map.mapService = elm_map_add(ad->table);
 	elm_map_zoom_mode_set(ad->map.mapService, ELM_MAP_ZOOM_MODE_MANUAL);
 	elm_map_zoom_set(ad->map.mapService, 12);
 
@@ -286,7 +278,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_min_set(ad->map.mapService, max, max);
 	evas_object_size_hint_weight_set(ad->map.mapService, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->map.mapService, EVAS_HINT_FILL, 0.5);
-	elm_table_pack(table, ad->map.mapService, 0,0,4,4);
+	elm_table_pack(ad->table, ad->map.mapService, 0,0,4,4);
 	evas_object_show(ad->map.mapService);
 
 	elm_map_region_show(ad->map.mapService, 2.665, 39.576);
@@ -300,15 +292,32 @@ create_base_gui(appdata_s *ad)
 	evas_object_smart_callback_add(ad->btn_info, "clicked", btn_info_clicked_cb, ad);
 	evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
 	evas_object_show(ad->btn_info);
-	elm_table_pack(table, ad->btn_info,0,0,2,1);
+	elm_table_pack(ad->table, ad->btn_info,0,0,2,1);
 
 	Evas_Object *ic;
-	char bt_info_img[PATH_MAX];
-	app_get_resource("info.png", bt_info_img, (int)PATH_MAX);
+	char bt_img[PATH_MAX];
+	app_get_resource("info.png", bt_img, (int)PATH_MAX);
 	ic = elm_icon_add(ad->btn_info);
-	elm_image_file_set(ic,bt_info_img,NULL);
+	elm_image_file_set(ic,bt_img,NULL);
 	elm_object_part_content_set(ad->btn_info,"icon",ic);
 	evas_object_show(ic);
+
+	ad->btn_open = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_open,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_open,-1.0,1.0);
+	elm_object_style_set(ad->btn_open, "circle");
+	elm_object_text_set(ad->btn_open,"Open");
+	evas_object_smart_callback_add(ad->btn_open, "clicked", btn_open_clicked_cb, ad);
+	evas_object_color_set(ad->btn_open, 0, 0, 0, 128);
+	evas_object_show(ad->btn_open);
+	elm_table_pack(ad->table, ad->btn_open,2,0,2,1);
+
+	Evas_Object *ic_open;
+	app_get_resource("open.png", bt_img, (int)PATH_MAX);
+	ic_open = elm_icon_add(ad->btn_open);
+	elm_image_file_set(ic_open,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_open,"icon",ic_open);
+	evas_object_show(ic_open);
 
 	ad->popup_info = elm_popup_add(ad->conform);
 	elm_popup_align_set(ad->popup_info, ELM_NOTIFY_ALIGN_FILL, 1.0);
@@ -331,29 +340,27 @@ create_base_gui(appdata_s *ad)
 	elm_object_text_set(button_gps_disabled_popup, "OK");
 	evas_object_smart_callback_add(button_gps_disabled_popup, "clicked", popup_exit_cb, ad->popup_gps_disabled);
 	elm_object_part_content_set(ad->popup_gps_disabled, "button1", button_gps_disabled_popup);
+
 	/* Label */
-	/* Create an actual view of the base gui.
-	   Modify this part to change the view. */
-	ad->labelGps = elm_label_add(table);
+	ad->labelGps = elm_label_add(ad->table);
 	elm_object_text_set(ad->labelGps, LABELFORMATSTART "Waiting GPS status" LABELFORMATEND);
 
-	elm_table_pack(table, ad->labelGps,0,4,4,1);
+	elm_table_pack(ad->table, ad->labelGps,0,4,4,1);
 	evas_object_show(ad->labelGps);
 
-	ad->labelCalc = elm_label_add(table);
+	ad->labelCalc = elm_label_add(ad->table);
 	elm_object_text_set(ad->labelCalc, LABELFORMATSTART "GPS Tracker" LABELFORMATEND);
 
-	elm_table_pack(table, ad->labelCalc,0,5,4,1);
+	elm_table_pack(ad->table, ad->labelCalc,0,5,4,1);
 	evas_object_show(ad->labelCalc);
 
-	ad->labelDist = elm_label_add(table);
+	ad->labelDist = elm_label_add(ad->table);
 	elm_object_text_set(ad->labelDist, LABELFORMATSTART "By Zipotron" LABELFORMATEND);
-	//elm_object_text_set(ad->labelDist, f_bg);
 
-	elm_table_pack(table, ad->labelDist,0,6,4,1);
+	elm_table_pack(ad->table, ad->labelDist,0,6,4,1);
 	evas_object_show(ad->labelDist);
 
-	ad->sliderInterval = elm_slider_add(table);
+	ad->sliderInterval = elm_slider_add(ad->table);
 	elm_slider_min_max_set(ad->sliderInterval, 1, 100);
 	elm_slider_value_set(ad->sliderInterval, ad->interval);
 	elm_slider_indicator_show_set(ad->sliderInterval, EINA_TRUE);
@@ -363,7 +370,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_size_hint_weight_set(ad->sliderInterval, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->sliderInterval, EVAS_HINT_FILL, 0.5);
 	evas_object_color_set(ad->sliderInterval, 0, 200, 0, 255);
-	elm_table_pack(table, ad->sliderInterval,0,7,4,1);
+	elm_table_pack(ad->table, ad->sliderInterval,0,7,4,1);
 
 	/*ad->sliderZoom = elm_slider_add(table);
 	elm_slider_min_max_set(ad->sliderZoom, 1, 14);
@@ -379,7 +386,7 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->sliderZoom);*/
 
 	/* Button exit*/
-	ad->btn_exit = elm_button_add(table);
+	ad->btn_exit = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_exit, "Exit");
 	evas_object_smart_callback_add(ad->btn_exit, "clicked", btn_exit_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_exit, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -387,21 +394,21 @@ create_base_gui(appdata_s *ad)
 
 	evas_object_color_set(ad->btn_exit, 200, 0, 0, 255);
 
-	elm_table_pack(table, ad->btn_exit,0,9,2,1);
+	elm_table_pack(ad->table, ad->btn_exit,0,9,2,1);
 	evas_object_show(ad->btn_exit);
 
 	/* Button gps on*/
-	ad->btn_on = elm_button_add(table);
+	ad->btn_on = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_on, "GPS on");
 	evas_object_smart_callback_add(ad->btn_on, "clicked", btn_gps_on_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_on, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->btn_on, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, ad->btn_on,2,9,2,1);
+	elm_table_pack(ad->table, ad->btn_on,2,9,2,1);
 	evas_object_show(ad->btn_on);
 
 	/* Button gps off*/
-	ad->btn_off = elm_button_add(table);
+	ad->btn_off = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_off, "GPS off");
 	evas_object_smart_callback_add(ad->btn_off, "clicked", btn_gps_off_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_off, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -409,19 +416,19 @@ create_base_gui(appdata_s *ad)
 
 	evas_object_color_set(ad->btn_off, 200, 0, 0, 255);
 
-	elm_table_pack(table, ad->btn_off,0,9,2,1);
+	elm_table_pack(ad->table, ad->btn_off,0,9,2,1);
 
 	/* Button record*/
-	ad->btn_record = elm_button_add(table);
+	ad->btn_record = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_record, "Record");
 	evas_object_smart_callback_add(ad->btn_record, "clicked", btn_record_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_record, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->btn_record, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, ad->btn_record,2,9,2,1);
+	elm_table_pack(ad->table, ad->btn_record,2,9,2,1);
 
 	/* Button stop*/
-	ad->btn_stop = elm_button_add(table);
+	ad->btn_stop = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_stop, "Stop");
 	evas_object_smart_callback_add(ad->btn_stop, "clicked", btn_stop_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_stop, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -429,19 +436,46 @@ create_base_gui(appdata_s *ad)
 
 	evas_object_color_set(ad->btn_stop, 200, 0, 0, 255);
 
-	elm_table_pack(table, ad->btn_stop,0,9,2,1);
+	elm_table_pack(ad->table, ad->btn_stop,0,9,2,1);
 
 	/* Button point*/
-	ad->btn_point = elm_button_add(table);
+	ad->btn_point = elm_button_add(ad->table);
 	elm_object_text_set(ad->btn_point, "Point");
 	evas_object_smart_callback_add(ad->btn_point, "clicked", btn_point_clicked_cb, ad);
 	evas_object_size_hint_weight_set(ad->btn_point, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ad->btn_point, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, ad->btn_point,2,9,2,1);
+	elm_table_pack(ad->table, ad->btn_point,2,9,2,1);
 
 	/* Show window after base gui is set up */
 	evas_object_show(ad->win);
+
+	/*Open file windows drawing*/
+	ad->open_win = elm_win_util_standard_add(PACKAGE, PACKAGE);
+	elm_win_autodel_set(ad->open_win, EINA_TRUE);
+	Evas_Object *open_conform;
+	Evas_Object *open_table;
+	open_conform = elm_conformant_add(ad->open_win);
+	elm_win_indicator_mode_set(ad->open_win, ELM_WIN_INDICATOR_SHOW);
+	elm_win_indicator_opacity_set(ad->open_win, ELM_WIN_INDICATOR_OPAQUE);
+	evas_object_size_hint_weight_set(open_conform, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_win_resize_object_add(ad->open_win, open_conform);
+	evas_object_show(open_conform);
+
+	open_table = elm_table_add(ad->open_win);
+
+	elm_object_content_set(open_conform, open_table);
+	evas_object_show(open_table);
+
+	Evas_Object *button_open_win_back;
+	button_open_win_back = elm_button_add(open_table);
+	elm_object_text_set(button_open_win_back, "Back");
+	evas_object_smart_callback_add(button_open_win_back, "clicked", popup_exit_cb, ad->open_win);
+	evas_object_size_hint_weight_set(button_open_win_back, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(button_open_win_back, EVAS_HINT_FILL, 0.5);
+
+	elm_table_pack(open_table, button_open_win_back,0,0,2,1);
+	evas_object_show(button_open_win_back);
 }
 
 static bool

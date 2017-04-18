@@ -10,6 +10,7 @@
 typedef struct appdata {
 	Evas_Object *win;
 	Evas_Object *conform;
+	Evas_Object *table;
 	Evas_Object *labelGps;
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
@@ -21,8 +22,10 @@ typedef struct appdata {
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
 	Evas_Object *btn_info;
+	Evas_Object *btn_open;
 	Evas_Object *popup_info;
 	Evas_Object *popup_gps_disabled;
+	Evas_Object *open_win;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;

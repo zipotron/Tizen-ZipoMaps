@@ -32,6 +32,12 @@ btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
+btn_open_clicked_cb(void *data, Evas_Object *obj, void *event_info){
+	appdata_s *ad = data;
+	evas_object_show(ad->open_win);
+}
+
+void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
@@ -72,6 +78,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		evas_object_hide(ad->btn_record);
 		evas_object_show(ad->btn_point);
 		evas_object_hide(ad->btn_off);
+		evas_object_hide(ad->btn_open);
 		evas_object_show(ad->btn_stop);
 		char *result;
 		result = xmlwriterCreateTrackDoc(ad);
@@ -130,6 +137,7 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_show(ad->btn_off);
 	evas_object_hide(ad->btn_point);
 	evas_object_show(ad->btn_record);
+	evas_object_show(ad->btn_open);
 	char *result;
 
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
