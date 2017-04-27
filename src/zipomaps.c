@@ -189,6 +189,24 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
     }
 }
 
+static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
+{
+    char buf[16];
+	int i = (int) data;
+	if (!strcmp(part, "elm.text")) {
+		sprintf(buf, "text %d", i);
+
+		return strdup(buf);
+	}
+
+	else return NULL;
+}
+
+static void _item_del(void *data, Evas_Object *obj)
+{
+   printf("item(%d) is now deleted", (int) data);
+}
+
 static void bg_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
 {
    evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -451,31 +469,46 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->win);
 
 	/*Open file windows drawing*/
-	ad->open_win = elm_win_util_standard_add(PACKAGE, PACKAGE);
-	elm_win_autodel_set(ad->open_win, EINA_TRUE);
+	ad->nf_win = elm_win_util_standard_add(PACKAGE, PACKAGE);
+	elm_win_autodel_set(ad->nf_win, EINA_TRUE);
 	Evas_Object *open_conform;
-	Evas_Object *open_table;
-	open_conform = elm_conformant_add(ad->open_win);
-	elm_win_indicator_mode_set(ad->open_win, ELM_WIN_INDICATOR_SHOW);
-	elm_win_indicator_opacity_set(ad->open_win, ELM_WIN_INDICATOR_OPAQUE);
+
+	open_conform = elm_conformant_add(ad->nf_win);
+	elm_win_indicator_mode_set(ad->nf_win, ELM_WIN_INDICATOR_SHOW);
+	elm_win_indicator_opacity_set(ad->nf_win, ELM_WIN_INDICATOR_OPAQUE);
 	evas_object_size_hint_weight_set(open_conform, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(ad->open_win, open_conform);
+	elm_win_resize_object_add(ad->nf_win, open_conform);
 	evas_object_show(open_conform);
 
-	open_table = elm_table_add(ad->open_win);
+	/*Naviframe*/
+	ad->nf = elm_naviframe_add(open_conform);
+	//elm_naviframe_prev_btn_auto_pushed_set(ad->nf, EINA_TRUE);
+	evas_object_show(ad->nf);
+	elm_object_content_set(open_conform, ad->nf);
 
-	elm_object_content_set(open_conform, open_table);
-	evas_object_show(open_table);
+	Evas_Object *genlist;
+	Elm_Genlist_Item_Class *itc;
 
-	Evas_Object *button_open_win_back;
-	button_open_win_back = elm_button_add(open_table);
-	elm_object_text_set(button_open_win_back, "Back");
-	evas_object_smart_callback_add(button_open_win_back, "clicked", popup_exit_cb, ad->open_win);
-	evas_object_size_hint_weight_set(button_open_win_back, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	evas_object_size_hint_align_set(button_open_win_back, EVAS_HINT_FILL, 0.5);
+	genlist = elm_genlist_add(ad->nf);
+	evas_object_show(genlist);
+	elm_naviframe_item_push(ad->nf, "GPX Files", NULL, NULL, genlist, NULL);
 
-	elm_table_pack(open_table, button_open_win_back,0,0,2,1);
-	evas_object_show(button_open_win_back);
+	itc = elm_genlist_item_class_new();
+	itc->item_style = "default";
+	itc->func.text_get = _item_label_get;
+	itc->func.del = _item_del;
+
+	int i;
+	for (i = 0; i < 10; i++) {
+	    elm_genlist_item_append(genlist, /* Genlist object */
+	                            itc, /* Genlist item class */
+	                            (void *)i, /* Item data */
+	                            NULL, /* Parent item */
+	                            ELM_GENLIST_ITEM_NONE, /* Item type */
+	                            NULL, /* Select callback */
+	                            NULL); /* Callback data */
+	}
+	elm_genlist_item_class_free(itc);
 }
 
 static bool
