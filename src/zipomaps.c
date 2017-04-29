@@ -470,29 +470,24 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(ad->win);
 
 	/*Open file windows drawing*/
-	ad->nf_win = elm_win_util_standard_add(PACKAGE, PACKAGE);
-	elm_win_autodel_set(ad->nf_win, EINA_TRUE);
+	ad->open_win = elm_win_util_standard_add(PACKAGE, PACKAGE);
+	elm_win_autodel_set(ad->open_win, EINA_TRUE);
 	Evas_Object *open_conform;
 
-	open_conform = elm_conformant_add(ad->nf_win);
-	elm_win_indicator_mode_set(ad->nf_win, ELM_WIN_INDICATOR_SHOW);
-	elm_win_indicator_opacity_set(ad->nf_win, ELM_WIN_INDICATOR_OPAQUE);
+	open_conform = elm_conformant_add(ad->open_win);
+	elm_win_indicator_mode_set(ad->open_win, ELM_WIN_INDICATOR_SHOW);
+	elm_win_indicator_opacity_set(ad->open_win, ELM_WIN_INDICATOR_OPAQUE);
 	evas_object_size_hint_weight_set(open_conform, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(ad->nf_win, open_conform);
+	elm_win_resize_object_add(ad->open_win, open_conform);
 	evas_object_show(open_conform);
 
-	/*Naviframe*/
-	ad->nf = elm_naviframe_add(open_conform);
-	//elm_naviframe_prev_btn_auto_pushed_set(ad->nf, EINA_TRUE);
-	evas_object_show(ad->nf);
-	elm_object_content_set(open_conform, ad->nf);
 
 	Evas_Object *genlist;
 	Elm_Genlist_Item_Class *itc;
 
-	genlist = elm_genlist_add(ad->nf);
+	genlist = elm_genlist_add(open_conform);
 	evas_object_show(genlist);
-	elm_naviframe_item_push(ad->nf, "GPX Files", NULL, NULL, genlist, NULL);
+	elm_object_content_set(open_conform, genlist);
 
 	itc = elm_genlist_item_class_new();
 	itc->item_style = "default";
@@ -505,7 +500,7 @@ create_base_gui(appdata_s *ad)
 		                            NULL, /* Parent item */
 		                            ELM_GENLIST_ITEM_NONE, /* Item type */
 									popup_exit_cb, /* Select callback */
-		                            ad->nf_win); /* Callback data */
+		                            ad->open_win); /* Callback data */
 
 	struct dirent* dent;
 	struct stat st;

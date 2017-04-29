@@ -25,8 +25,7 @@ typedef struct appdata {
 	Evas_Object *btn_open;
 	Evas_Object *popup_info;
 	Evas_Object *popup_gps_disabled;
-	Evas_Object *nf_win;
-	Evas_Object *nf;
+	Evas_Object *open_win;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;
