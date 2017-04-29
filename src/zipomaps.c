@@ -14,6 +14,7 @@
 #include <libxml/encoding.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 /*
  * https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=f23adf67ad974aa38a80c8a94b114e44
@@ -191,12 +192,12 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
 
 static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
 {
-    char buf[16];
-	int i = (int) data;
+	char *i = (char *) data;
+	char *buf = calloc(strlen(i), sizeof(char));
 	if (!strcmp(part, "elm.text")) {
-		sprintf(buf, "text %d", i);
+		sprintf(buf, "%s", i);
 
-		return strdup(buf);
+		return buf;
 	}
 
 	else return NULL;
@@ -498,15 +499,43 @@ create_base_gui(appdata_s *ad)
 	itc->func.text_get = _item_label_get;
 	itc->func.del = _item_del;
 
-	int i;
-	for (i = 0; i < 10; i++) {
-	    elm_genlist_item_append(genlist, /* Genlist object */
-	                            itc, /* Genlist item class */
-	                            (void *)i, /* Item data */
-	                            NULL, /* Parent item */
-	                            ELM_GENLIST_ITEM_NONE, /* Item type */
-	                            NULL, /* Select callback */
-	                            NULL); /* Callback data */
+	elm_genlist_item_append(genlist, /* Genlist object */
+		                            itc, /* Genlist item class */
+		                            (void *)"Return main screen", /* Item data */
+		                            NULL, /* Parent item */
+		                            ELM_GENLIST_ITEM_NONE, /* Item type */
+									popup_exit_cb, /* Select callback */
+		                            ad->nf_win); /* Callback data */
+
+	struct dirent* dent;
+	struct stat st;
+	if(( stat(DIR_MAIN, &st) != -1 ) && ( stat(DIR_TRK, &st) != -1 )){
+
+		DIR* srcdir = opendir(DIR_TRK);
+
+		if (srcdir != NULL){
+
+			while((dent = readdir(srcdir)) != NULL){
+
+		        if(strcmp(dent->d_name, ".") == 0 || strcmp(dent->d_name, "..") == 0)
+		            continue;
+
+		        //if (fstatat(dirfd(srcdir), dent->d_name, &st, 0) < 0){
+		        if(!stat(dent->d_name, &st)&&(S_ISREG(st.st_mode))){
+		        	elm_genlist_item_append(genlist,
+		        		                            itc,
+		        		                            //(void *)dent->d_name,
+													(void *)dent->d_name,
+		        		                            NULL,
+		        		                            ELM_GENLIST_ITEM_NONE,
+		        		                            NULL,
+		        		                            NULL);
+		        }
+		    }
+		closedir(srcdir);
+		}
+	  /*else
+	    perror ("Couldn't open the directory");*/
 	}
 	elm_genlist_item_class_free(itc);
 }
@@ -523,8 +552,8 @@ app_create(void *data)
 	create_base_gui(ad);
 
 	struct stat buf;
-	if( stat(DIR, &buf) == -1 ){
-		mkdir(DIR, 0777);
+	if( stat(DIR_MAIN, &buf) == -1 ){
+		mkdir(DIR_MAIN, 0777);
 		mkdir(DIR_TRK, 0777);
 		/*mkdir(DIR_MAPS, 0777);
 		for(int i=1; i<15;i++){
