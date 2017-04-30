@@ -193,12 +193,8 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
 static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
 {
 	char *i = (char *) data;
-	char *buf = calloc(strlen(i), sizeof(char));
-	if (!strcmp(part, "elm.text")) {
-		sprintf(buf, "%s", i);
-
-		return buf;
-	}
+	if (!strcmp(part, "elm.text"))
+		return strdup(i);
 
 	else return NULL;
 }
@@ -504,6 +500,7 @@ create_base_gui(appdata_s *ad)
 
 	struct dirent* dent;
 	struct stat st;
+	char *element_label;
 	if(( stat(DIR_MAIN, &st) != -1 ) && ( stat(DIR_TRK, &st) != -1 )){
 
 		DIR* srcdir = opendir(DIR_TRK);
@@ -516,11 +513,13 @@ create_base_gui(appdata_s *ad)
 		            continue;
 
 		        //if (fstatat(dirfd(srcdir), dent->d_name, &st, 0) < 0){
-		        if(!stat(dent->d_name, &st)&&(S_ISREG(st.st_mode))){
+		        element_label = (char*)malloc(255*sizeof(char));
+		        if(stat(dent->d_name, &st)){
+		        	sprintf(element_label,"%s\0", dent->d_name);
 		        	elm_genlist_item_append(genlist,
 		        		                            itc,
 		        		                            //(void *)dent->d_name,
-													(void *)dent->d_name,
+													(void *)element_label,
 		        		                            NULL,
 		        		                            ELM_GENLIST_ITEM_NONE,
 		        		                            NULL,
