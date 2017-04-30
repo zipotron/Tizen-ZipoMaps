@@ -64,6 +64,11 @@ typedef struct appdata {
 	}map;
 } appdata_s;
 
+typedef struct item_data{
+	appdata_s *ad;
+	char *label;
+}item_data_s;
+
 void stop_gps(appdata_s *ad);
 
 void start_gps(appdata_s *ad);

@@ -190,6 +190,14 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
     }
 }
 
+void open_file(void *data, Evas_Object *obj, void *event_info)
+{
+	item_data_s *element_data = data;
+	evas_object_hide(element_data->ad->open_win);
+	char *label = element_data->label;
+	//free(element_data); Core dump
+}
+
 static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
 {
 	char *i = (char *) data;
@@ -500,7 +508,7 @@ create_base_gui(appdata_s *ad)
 
 	struct dirent* dent;
 	struct stat st;
-	char *element_label;
+	item_data_s *element_data;
 	if(( stat(DIR_MAIN, &st) != -1 ) && ( stat(DIR_TRK, &st) != -1 )){
 
 		DIR* srcdir = opendir(DIR_TRK);
@@ -513,17 +521,19 @@ create_base_gui(appdata_s *ad)
 		            continue;
 
 		        //if (fstatat(dirfd(srcdir), dent->d_name, &st, 0) < 0){
-		        element_label = (char*)malloc(255*sizeof(char));
+		        element_data = (item_data_s*)malloc(sizeof(item_data_s));
+		        element_data->label = (char*)malloc(255*sizeof(char));
+		        element_data->ad = ad;
 		        if(stat(dent->d_name, &st)){
-		        	sprintf(element_label,"%s\0", dent->d_name);
+		        	sprintf(element_data->label,"%s", dent->d_name);
 		        	elm_genlist_item_append(genlist,
 		        		                            itc,
 		        		                            //(void *)dent->d_name,
-													(void *)element_label,
+													(void *)element_data->label,
 		        		                            NULL,
 		        		                            ELM_GENLIST_ITEM_NONE,
-		        		                            NULL,
-		        		                            NULL);
+		        		                            open_file,
+													element_data);
 		        }
 		    }
 		closedir(srcdir);
