@@ -209,7 +209,7 @@ static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
 
 static void _item_del(void *data, Evas_Object *obj)
 {
-   printf("item(%d) is now deleted", (int) data);
+   //free((char*) data);
 }
 
 static void bg_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)

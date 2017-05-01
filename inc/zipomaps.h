@@ -7,7 +7,7 @@
 //#include <download.h>
 #include <libxml/xmlwriter.h>
 
-typedef struct appdata {
+typedef struct {
 	Evas_Object *win;
 	Evas_Object *conform;
 	Evas_Object *table;
@@ -64,7 +64,7 @@ typedef struct appdata {
 	}map;
 } appdata_s;
 
-typedef struct item_data{
+typedef struct {
 	appdata_s *ad;
 	char *label;
 }item_data_s;

@@ -56,7 +56,7 @@ speedAndDistance(double latitude, double longitude, double altitude, time_t time
 			appdata_s *ad = data;
 			ad->tracker.distance += d;
 		}
-		if((timestamp - oldTimestamp) > 0){
+		if(abs(timestamp - oldTimestamp) > 0){
 			stemp = d / (timestamp - oldTimestamp);
 			if(fabs(s - stemp) < acceleration / (timestamp - oldTimestamp)){
 				if(stemp > *maxSpeed) *maxSpeed = stemp;
