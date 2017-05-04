@@ -1,4 +1,4 @@
-#include <Elementary.h>
+#include <efl_extension.h>
 
 #define FILETRACK "/track.gpx"
 #define FILEWPT "/wpt.gpx"

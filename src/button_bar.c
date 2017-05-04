@@ -1,8 +1,8 @@
 #include "button_bar.h"
 #include "zipomaps.h"
-#include "xmlfunctions.h"
 #include "config.h"
 #include "open_file.h"
+#include "write_file.h"
 #include <runtime_info.h>
 #include <notification.h>
 
