@@ -26,6 +26,7 @@ typedef struct {
 	Evas_Object *popup_info;
 	Evas_Object *popup_gps_disabled;
 	Evas_Object *open_win;
+	Evas_Object *open_genlist;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;

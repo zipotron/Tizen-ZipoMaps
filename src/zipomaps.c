@@ -190,28 +190,6 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
     }
 }
 
-void open_file(void *data, Evas_Object *obj, void *event_info)
-{
-	item_data_s *element_data = data;
-	evas_object_hide(element_data->ad->open_win);
-	char *label = element_data->label;
-	//free(element_data); Core dump
-}
-
-static char *_item_label_get(void *data, Evas_Object *obj, const char *part)
-{
-	char *i = (char *) data;
-	if (!strcmp(part, "elm.text"))
-		return strdup(i);
-
-	else return NULL;
-}
-
-static void _item_del(void *data, Evas_Object *obj)
-{
-   //free((char*) data);
-}
-
 static void bg_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
 {
    evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -486,62 +464,9 @@ create_base_gui(appdata_s *ad)
 	evas_object_show(open_conform);
 
 
-	Evas_Object *genlist;
-	Elm_Genlist_Item_Class *itc;
-
-	genlist = elm_genlist_add(open_conform);
-	evas_object_show(genlist);
-	elm_object_content_set(open_conform, genlist);
-
-	itc = elm_genlist_item_class_new();
-	itc->item_style = "default";
-	itc->func.text_get = _item_label_get;
-	itc->func.del = _item_del;
-
-	elm_genlist_item_append(genlist, /* Genlist object */
-		                            itc, /* Genlist item class */
-		                            (void *)"Return main screen", /* Item data */
-		                            NULL, /* Parent item */
-		                            ELM_GENLIST_ITEM_NONE, /* Item type */
-									popup_exit_cb, /* Select callback */
-		                            ad->open_win); /* Callback data */
-
-	struct dirent* dent;
-	struct stat st;
-	item_data_s *element_data;
-	if(( stat(DIR_MAIN, &st) != -1 ) && ( stat(DIR_TRK, &st) != -1 )){
-
-		DIR* srcdir = opendir(DIR_TRK);
-
-		if (srcdir != NULL){
-
-			while((dent = readdir(srcdir)) != NULL){
-
-		        if(strcmp(dent->d_name, ".") == 0 || strcmp(dent->d_name, "..") == 0)
-		            continue;
-
-		        //if (fstatat(dirfd(srcdir), dent->d_name, &st, 0) < 0){
-		        element_data = (item_data_s*)malloc(sizeof(item_data_s));
-		        element_data->label = (char*)malloc(255*sizeof(char));
-		        element_data->ad = ad;
-		        if(stat(dent->d_name, &st)){
-		        	sprintf(element_data->label,"%s", dent->d_name);
-		        	elm_genlist_item_append(genlist,
-		        		                            itc,
-		        		                            //(void *)dent->d_name,
-													(void *)element_data->label,
-		        		                            NULL,
-		        		                            ELM_GENLIST_ITEM_NONE,
-		        		                            open_file,
-													element_data);
-		        }
-		    }
-		closedir(srcdir);
-		}
-	  /*else
-	    perror ("Couldn't open the directory");*/
-	}
-	elm_genlist_item_class_free(itc);
+	ad->open_genlist = elm_genlist_add(open_conform);
+	evas_object_show(ad->open_genlist);
+	elm_object_content_set(open_conform, ad->open_genlist);
 }
 
 static bool

@@ -2,8 +2,16 @@
 #include "zipomaps.h"
 #include "xmlfunctions.h"
 #include "config.h"
+#include "open_file.h"
 #include <runtime_info.h>
 #include <notification.h>
+
+static void open_file_exit_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata_s *ad = data;
+	evas_object_hide(ad->open_win);
+	elm_genlist_clear(ad->open_genlist);
+}
 
 void gps_settings_changed_cb(runtime_info_key_e key, void *data){
 	appdata_s *ad = data;
@@ -34,6 +42,56 @@ btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 void
 btn_open_clicked_cb(void *data, Evas_Object *obj, void *event_info){
 	appdata_s *ad = data;
+	Elm_Genlist_Item_Class *itc;
+	itc = elm_genlist_item_class_new();
+	itc->item_style = "default";
+	itc->func.text_get = open_file_item_label_get;
+	itc->func.del = open_file_item_del;
+
+	elm_genlist_item_append(ad->open_genlist, /* Genlist object */
+		                            itc, /* Genlist item class */
+		                            (void *)"Return main screen", /* Item data */
+		                            NULL, /* Parent item */
+		                            ELM_GENLIST_ITEM_NONE, /* Item type */
+									open_file_exit_cb, /* Select callback */
+		                            ad); /* Callback data */
+
+	struct dirent* dent;
+	struct stat st;
+	item_data_s *element_data;
+	if(( stat(DIR_MAIN, &st) != -1 ) && ( stat(DIR_TRK, &st) != -1 )){
+
+		DIR* srcdir = opendir(DIR_TRK);
+
+		if (srcdir != NULL){
+
+			while((dent = readdir(srcdir)) != NULL){
+
+		        if(strcmp(dent->d_name, ".") == 0 || strcmp(dent->d_name, "..") == 0)
+		            continue;
+
+		        element_data = (item_data_s*)malloc(sizeof(item_data_s));
+		        element_data->label = (char*)malloc(255*sizeof(char));
+		        element_data->ad = ad;
+		        if(stat(dent->d_name, &st)){
+		        	sprintf(element_data->label,"%s", dent->d_name);
+		        	elm_genlist_item_append(ad->open_genlist,
+		        		                            itc,
+		        		                            //(void *)dent->d_name,
+													(void *)element_data->label,
+		        		                            NULL,
+		        		                            ELM_GENLIST_ITEM_NONE,
+		        		                            open_file,
+													element_data);
+		        }
+		    }
+		closedir(srcdir);
+		}
+	  /*else
+	    perror ("Couldn't open the directory");*/
+	}
+	elm_genlist_item_class_free(itc);
+
 	evas_object_show(ad->open_win);
 }
 
