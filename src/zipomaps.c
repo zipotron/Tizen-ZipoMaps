@@ -4,6 +4,7 @@
 #include "calcfunctions.h"
 #include "button_bar.h"
 #include "config.h"
+#include "write_file.h"
 #include <stdio.h>
 #include <string.h>
 #include <system_info.h>
@@ -14,7 +15,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <write_file.h>
 
 /*
  * https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=f23adf67ad974aa38a80c8a94b114e44
