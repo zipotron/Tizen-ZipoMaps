@@ -5,6 +5,7 @@
 #include "button_bar.h"
 #include "config.h"
 #include "write_file.h"
+#include "visor_online.h"
 #include <stdio.h>
 #include <string.h>
 #include <system_info.h>
@@ -67,21 +68,17 @@ show_map_point(void *user_data){
 	appdata_s *ad = user_data;
 	//elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-	if(!ad->map.ovl){
-		Evas_Object *icon;
-		ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-		icon = elm_icon_add(ad->map.mapService);
-		elm_icon_standard_set(icon, "home");
-		elm_map_overlay_icon_set(ad->map.ovl, icon);
-	}
+	if(!ad->map.ovl)
+		show_home_mark(ad->visor.longitude, ad->visor.latitude, ad);
+
 }
 
 static void
 set_position(double latitude, double longitude, double altitude, time_t timestamp, void *user_data){
 	appdata_s *ad = user_data;
-	if((ad->map.recording) && (ad->xml.trkData)){
+	if((ad->map.recording) && (ad->xml.trkData))
 		ad->map.ovl = elm_map_overlay_line_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude, longitude, latitude);
-	}
+
 	ad->visor.latitude = latitude;
 	ad->visor.longitude = longitude;
 	ad->visor.altitude = altitude;
@@ -139,11 +136,7 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 			result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
 			ad->xml.writeNextWpt = 0;
 
-			Evas_Object *icon;
-			ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-			icon = elm_icon_add(ad->map.mapService);
-			elm_icon_standard_set(icon, "clock");
-			elm_map_overlay_icon_set(ad->map.ovl, icon);
+			show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
 		}
 
 		elm_object_text_set(ad->labelGps, buf);

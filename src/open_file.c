@@ -4,7 +4,7 @@
 #include <libxml/parser.h>
 
 void
-get_geoptr_extra_info(xmlDoc *doc, xmlNode * node){
+get_geoptr_extra_info(xmlDoc *doc, xmlNode * node, appdata_s *ad){
 	xmlChar *ele;
 	xmlChar *name;
 	xmlNode *cur = NULL;
@@ -25,7 +25,7 @@ get_geoptr_extra_info(xmlDoc *doc, xmlNode * node){
 }
 
 void
-find_trkpt_recursive(xmlDoc *doc, xmlNode * node) {
+find_trkpt_recursive(xmlDoc *doc, xmlNode * node, appdata_s *ad) {
 	xmlNode *cur = NULL;
 	xmlChar *lat;
 	xmlChar *lon;
@@ -35,17 +35,17 @@ find_trkpt_recursive(xmlDoc *doc, xmlNode * node) {
             lat = xmlGetProp(cur, "lat");
 		    lon = xmlGetProp(cur, "lon");
 		    //printf("lat: %s lon: %s\n",lat, lon);
-		    get_geoptr_extra_info(doc, cur->xmlChildrenNode);
+		    get_geoptr_extra_info(doc, cur->xmlChildrenNode, ad);
 		    xmlFree(lat);
 		    xmlFree(lon);
         }
-        find_trkpt_recursive(doc, cur->children);
+        find_trkpt_recursive(doc, cur->children, ad);
     }
 }
 
 
 void
-parse_gpx_doc(char *docname) {
+parse_gpx_doc(char *docname, appdata_s *ad) {
 
 	xmlDoc *doc;
 	xmlNode *cur;
@@ -80,7 +80,7 @@ parse_gpx_doc(char *docname) {
 		    lat = xmlGetProp(cur, "lat");
 		    lon = xmlGetProp(cur, "lon");
 		    if(cur->xmlChildrenNode)
-				get_geoptr_extra_info(doc, cur->xmlChildrenNode);
+				get_geoptr_extra_info(doc, cur->xmlChildrenNode, ad);
 
 		    //printf("lat: %s lon: %s\n", lat, lon);
 		    xmlFree(lat);
@@ -88,7 +88,7 @@ parse_gpx_doc(char *docname) {
 
 	    }
 	    else if ((!xmlStrcmp(cur->name, (const xmlChar *)"trk")))
-			find_trkpt_recursive(doc, cur->xmlChildrenNode);
+			find_trkpt_recursive(doc, cur->xmlChildrenNode, ad);
 
 	    cur = cur->next;
 	}
@@ -102,7 +102,7 @@ void open_file(void *data, Evas_Object *obj, void *event_info)
 	evas_object_hide(element_data->ad->open_win);
 	elm_genlist_clear(element_data->ad->open_genlist);
 	sprintf(buf, "%s/%s", DIR_TRK, element_data->label);
-	parse_gpx_doc(buf);
+	parse_gpx_doc(buf, element_data->ad);
 	//char *label = element_data->label;
 	//free(element_data); Core dump
 }
