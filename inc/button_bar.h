@@ -4,6 +4,9 @@ void
 btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info);
 
 void
+btn_open_clicked_cb(void *data, Evas_Object *obj, void *event_info);
+
+void
 btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info);
 
 void

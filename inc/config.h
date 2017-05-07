@@ -1,6 +1,6 @@
 //#define DIR_MAPS "/opt/usr/media/ZipoMaps/maps"
 #define DIR_TRK "/opt/usr/media/ZipoMaps/tracks"
-#define DIR "/opt/usr/media/ZipoMaps"
+#define DIR_MAIN "/opt/usr/media/ZipoMaps"
 
 #define FILETRACK "/track"
 #define FILEWPT "/wpt"

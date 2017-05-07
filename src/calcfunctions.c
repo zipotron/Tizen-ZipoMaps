@@ -58,7 +58,7 @@ speedAndDistance(double latitude, double longitude, double altitude, time_t time
 		}
 		if((timestamp - oldTimestamp) > 0){
 			stemp = d / (timestamp - oldTimestamp);
-			if(fabs(s - stemp) < acceleration / (timestamp - oldTimestamp)){
+			if(fabs(s - stemp)/(timestamp - oldTimestamp) < acceleration){
 				if(stemp > *maxSpeed) *maxSpeed = stemp;
 				s = stemp;
 			}

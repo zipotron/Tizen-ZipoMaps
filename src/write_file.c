@@ -1,4 +1,4 @@
-#include "xmlfunctions.h"
+#include "write_file.h"
 #include "zipomaps.h"
 
 char

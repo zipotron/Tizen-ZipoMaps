@@ -7,9 +7,10 @@
 //#include <download.h>
 #include <libxml/xmlwriter.h>
 
-typedef struct appdata {
+typedef struct {
 	Evas_Object *win;
 	Evas_Object *conform;
+	Evas_Object *table;
 	Evas_Object *labelGps;
 	Evas_Object *labelCalc;
 	Evas_Object *labelDist;
@@ -21,8 +22,11 @@ typedef struct appdata {
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
 	Evas_Object *btn_info;
+	Evas_Object *btn_open;
 	Evas_Object *popup_info;
 	Evas_Object *popup_gps_disabled;
+	Evas_Object *open_win;
+	Evas_Object *open_genlist;
 	//Evas_Object *sliderZoom;
 	/*struct{
 		download_error_e download;
@@ -60,6 +64,11 @@ typedef struct appdata {
 		bool recording;
 	}map;
 } appdata_s;
+
+typedef struct {
+	appdata_s *ad;
+	char *label;
+}item_data_s;
 
 void stop_gps(appdata_s *ad);
 
