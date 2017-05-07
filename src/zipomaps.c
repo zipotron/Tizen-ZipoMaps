@@ -85,6 +85,27 @@ set_position(double latitude, double longitude, double altitude, time_t timestam
 	ad->visor.timestamp = timestamp;
 }
 
+static void
+print_gps_data(double latitude, double longitude, double altitude, time_t timestamp, appdata_s *ad, int kmh, int print_distance){
+
+	char buf[100];
+
+	double speed = speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad);
+
+	sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
+	elm_object_text_set(ad->labelGps, buf);
+	if(kmh)
+		sprintf(buf, "%sSpeed:%.0f km/h - Max:%.0f km/h%s", LABELFORMATSTART, speed * 3.6, ad->tracker.maxSpeed *3.6, LABELFORMATEND);
+	else
+		sprintf(buf, "%sSpeed:%.0f m/s - Max:%.0f m/s%s", LABELFORMATSTART, speed, ad->tracker.maxSpeed, LABELFORMATEND);
+
+	elm_object_text_set(ad->labelCalc, buf);
+	if(print_distance){
+		sprintf(buf, "%sTotal Distance:%.0f m%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
+		elm_object_text_set(ad->labelDist, buf);
+	}
+}
+
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
@@ -92,13 +113,7 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 		appdata_s *ad = user_data;
 		set_position(latitude, longitude, altitude, timestamp, ad);
 		//show_map_point(ad);
-
-		char buf[100];
-		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
-		elm_object_text_set(ad->labelGps, buf);
-
-		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed, LABELFORMATEND);
-		elm_object_text_set(ad->labelCalc, buf);
+		print_gps_data(latitude, longitude, altitude, timestamp, ad, true, false);
 
     //Temporal trick
     	/*char bufLink[512];
@@ -124,12 +139,11 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 		appdata_s *ad = user_data;
 		set_position(latitude, longitude, altitude, timestamp, ad);
 		show_map_point(ad);
+		print_gps_data(latitude, longitude, altitude, timestamp, ad, true, true);
 
 		char *result;
-		char buf[100];
 
 		result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
-		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f - %s%s", LABELFORMATSTART, latitude, longitude, altitude, result, LABELFORMATEND);
 
 		if(ad->xml.writeNextWpt){
 			free(result);
@@ -139,11 +153,6 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 			show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
 		}
 
-		elm_object_text_set(ad->labelGps, buf);
-		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed, LABELFORMATEND);
-		elm_object_text_set(ad->labelCalc, buf);
-		sprintf(buf, "%sTotal Distance:%0.1f%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
-		elm_object_text_set(ad->labelDist, buf);
 		free(result);
 
 		/*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
@@ -210,7 +219,7 @@ create_base_gui(appdata_s *ad)
 	ad->xml.trkData = false;
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
-	ad->tracker.maxAcceleration = 15;
+	ad->tracker.maxAcceleration = 10;
 	ad->map.ovl = NULL;
 	ad->map.recording = false;
 	//ad->visor.zoom = 7;
