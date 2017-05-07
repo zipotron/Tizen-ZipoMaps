@@ -1,10 +1,13 @@
 #include "visor_online.h"
 
 
-void draw_trk_line_incremental(double lon, double lat, appdata_s *ad){
+void draw_trk_line_incremental(double lon, double lat, appdata_s *ad, int reset){
 	static double lon_or = 0;
 	static double lat_or = 0;
-	static int initialized = 0;
+	static int initialized = false;
+
+	if(reset)
+		initialized = false;
 
 	if(initialized && (!((lon_or == lon) && (lat_or == lat))))
 		ad->map.ovl = elm_map_overlay_line_add(ad->map.mapService, lon_or, lat_or, lon, lat);
