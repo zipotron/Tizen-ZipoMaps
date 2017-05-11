@@ -68,7 +68,7 @@ show_map_point(void *user_data){
 	appdata_s *ad = user_data;
 	//elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-	if(!ad->map.ovl)
+	if((!ad->map.ovl) && (ad->map.recording))
 		show_home_mark(ad->visor.longitude, ad->visor.latitude, ad);
 
 }
@@ -112,7 +112,10 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 	if(timestamp){
 		appdata_s *ad = user_data;
 		set_position(latitude, longitude, altitude, timestamp, ad);
-		//show_map_point(ad);
+		if(ad->visor.go_position){
+			show_map_point(ad);
+			ad->visor.go_position = 0;
+		}
 		print_gps_data(latitude, longitude, altitude, timestamp, ad, true, false);
 
     //Temporal trick
@@ -209,6 +212,7 @@ create_base_gui(appdata_s *ad)
 
 	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
+	ad->visor.go_position = 0;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = 0;
 	ad->xml.docWpt = NULL;
@@ -321,6 +325,22 @@ create_base_gui(appdata_s *ad)
 	elm_image_file_set(ic_open,bt_img,NULL);
 	elm_object_part_content_set(ad->btn_open,"icon",ic_open);
 	evas_object_show(ic_open);
+
+	ad->btn_pos = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_pos,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_pos,-1.0,1.0);
+	elm_object_style_set(ad->btn_pos, "circle");
+	elm_object_text_set(ad->btn_pos,"Pos");
+	evas_object_smart_callback_add(ad->btn_pos, "clicked", btn_pos_clicked_cb, ad);
+	evas_object_color_set(ad->btn_pos, 0, 0, 0, 128);
+	elm_table_pack(ad->table, ad->btn_pos,0,0,2,1);
+
+	Evas_Object *ic_pos;
+	app_get_resource("position.png", bt_img, (int)PATH_MAX);
+	ic_pos = elm_icon_add(ad->btn_pos);
+	elm_image_file_set(ic_pos,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_pos,"icon",ic_pos);
+	evas_object_show(ic_pos);
 
 	ad->popup_info = elm_popup_add(ad->conform);
 	elm_popup_align_set(ad->popup_info, ELM_NOTIFY_ALIGN_FILL, 1.0);

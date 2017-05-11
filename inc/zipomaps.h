@@ -23,6 +23,7 @@ typedef struct {
 	Evas_Object *btn_point;
 	Evas_Object *btn_info;
 	Evas_Object *btn_open;
+	Evas_Object *btn_pos;
 	Evas_Object *popup_info;
 	Evas_Object *popup_gps_disabled;
 	Evas_Object *open_win;
@@ -52,6 +53,7 @@ typedef struct {
 		double longitude;
 		double altitude;
 		time_t timestamp;
+		int go_position;
 		//int zoom;
 	}visor;
 	int interval;
