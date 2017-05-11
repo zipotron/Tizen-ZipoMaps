@@ -40,6 +40,13 @@ btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
+btn_pos_clicked_cb(void *data, Evas_Object *obj, void *event_info){
+	appdata_s *ad = data;
+	if(ad->visor.longitude && ad->visor.latitude)
+		elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
+}
+
+void
 btn_open_clicked_cb(void *data, Evas_Object *obj, void *event_info){
 	appdata_s *ad = data;
 	Elm_Genlist_Item_Class *itc;
@@ -137,6 +144,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		evas_object_show(ad->btn_point);
 		evas_object_hide(ad->btn_off);
 		evas_object_hide(ad->btn_open);
+		evas_object_hide(ad->btn_pos);
 		evas_object_show(ad->btn_stop);
 		char *result;
 		result = xmlwriterCreateTrackDoc(ad);
@@ -159,6 +167,7 @@ btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
 
 	if(gps_service_on){
+		ad->visor.go_position = 1;
 		start_gps(ad);
 		evas_object_show(ad->sliderInterval);
 		evas_object_hide(ad->btn_exit);
@@ -166,6 +175,7 @@ btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		evas_object_hide(ad->btn_on);
 		evas_object_show(ad->btn_record);
 		evas_object_hide(ad->btn_info);
+		evas_object_show(ad->btn_pos);
 		location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 		runtime_info_set_changed_cb(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, gps_settings_changed_cb, ad);
 	} else {
@@ -179,6 +189,7 @@ btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	appdata_s *ad = data;
 	evas_object_hide(ad->sliderInterval);
 	evas_object_hide(ad->btn_off);
+	evas_object_hide(ad->btn_pos);
 	evas_object_show(ad->btn_exit);
 	evas_object_hide(ad->btn_record);
 	evas_object_show(ad->btn_on);
@@ -196,6 +207,7 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_hide(ad->btn_point);
 	evas_object_show(ad->btn_record);
 	evas_object_show(ad->btn_open);
+	evas_object_show(ad->btn_pos);
 	char *result;
 
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
