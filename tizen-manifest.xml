@@ -5,7 +5,7 @@
 This application is under Open Source License, and you can have the sources from the seller's</description>
     <profile name="mobile"/>
     <ui-application appid="org.zipotron.zipomaps" exec="zipomaps" launch_mode="single" multiple="false" nodisplay="false" taskmanage="true" type="capp">
-        <label>Zipomaps</label>
+        <label>ZipoMaps</label>
         <icon>appIcon.png</icon>
     </ui-application>
     <privileges>
