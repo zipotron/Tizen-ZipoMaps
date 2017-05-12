@@ -54,6 +54,7 @@ typedef struct {
 		double altitude;
 		time_t timestamp;
 		int go_position;
+		int gps_data;
 		//int zoom;
 	}visor;
 	int interval;

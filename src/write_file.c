@@ -1,5 +1,6 @@
 #include "write_file.h"
 #include "zipomaps.h"
+#include "config.h"
 
 char
 *xmlwriterCreateWptDoc(void *data)
@@ -151,7 +152,7 @@ char
 }
 
 char
-*xmlwriterAddWpt(double latitude, double longitude, double altitude, void *data)
+*xmlwriterAddWpt(double longitude, double latitude, double altitude, void *data)
 {
 	int rc;
 	appdata_s *ad = data;
@@ -188,11 +189,13 @@ char
 
 	ad->xml.wptData = true;
 
+	ad->xml.writeNextWpt = 0;
+
 	return buf;
 }
 
 char
-*xmlwriterAddNode(double latitude, double longitude, double altitude, time_t timestamp, void *data)
+*xmlwriterAddNode(double longitude, double latitude, double altitude, time_t timestamp, void *data)
 {
 	int rc;
 	appdata_s *ad = data;
