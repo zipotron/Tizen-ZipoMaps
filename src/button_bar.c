@@ -3,6 +3,7 @@
 #include "config.h"
 #include "open_file.h"
 #include "write_file.h"
+#include "visor_online.h"
 #include <runtime_info.h>
 #include <notification.h>
 
@@ -42,7 +43,7 @@ btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 void
 btn_pos_clicked_cb(void *data, Evas_Object *obj, void *event_info){
 	appdata_s *ad = data;
-	if(ad->visor.longitude && ad->visor.latitude)
+	if(ad->visor.timestamp)
 		elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
 }
 
@@ -113,17 +114,25 @@ btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	if(gps_service_on){
 		static int counter = 0;
 
-		if(ad->xml.writeNextWpt == -1) ad->xml.writeNextWpt = counter = 0;
+		if(ad->xml.writeNextWpt == -2){
+			counter = 0;
+			ad->xml.writeNextWpt = -1;
+		}
 
-		if(!ad->xml.writeNextWpt){
+		if(ad->xml.writeNextWpt == -1){
 			char *result;
-
-			if(counter == 0){
+			if(!counter){
 				result = xmlwriterCreateWptDoc(ad);
 				free(result);
 			}
 			counter++;
 			ad->xml.writeNextWpt = counter;
+			if(ad->visor.timestamp){
+				result = xmlwriterAddWpt(ad->visor.longitude, ad->visor.latitude, ad->visor.altitude, ad);
+				show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
+				ad->visor.gps_data = 1;
+				free(result);
+			}
 		}
 	} else {
 		evas_object_show(ad->popup_gps_disabled);
@@ -213,7 +222,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 	ad->map.recording = false;
 
-	//struct stat buf;
+	if(!ad->visor.gps_data)
+		notification_status_message_post("There is not any data from GPS device, no files will be saved.");
 
 	char timestring[22];
 	strftime(timestring, 21, "_%Y-%m-%d-%H:%M:%S", localtime(&(ad->visor.timestamp)));
@@ -240,7 +250,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	}*/
 	ad->xml.trkData = false;
 	ad->xml.wptData = false;
-	ad->xml.writeNextWpt = -1;
+	ad->xml.writeNextWpt = -2;
+	ad->visor.gps_data = 0;
 }
 
 void popup_exit_cb(void *data, Evas_Object *obj, void *event_info)

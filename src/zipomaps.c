@@ -109,14 +109,13 @@ print_gps_data(double latitude, double longitude, double altitude, time_t timest
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-	if(timestamp){
-		appdata_s *ad = user_data;
-		set_position(latitude, longitude, altitude, timestamp, ad);
-		if(ad->visor.go_position){
-			show_map_point(ad);
-			ad->visor.go_position = 0;
-		}
-		print_gps_data(latitude, longitude, altitude, timestamp, ad, true, false);
+	appdata_s *ad = user_data;
+	set_position(latitude, longitude, altitude, timestamp, ad);
+	if(ad->visor.go_position){
+		show_map_point(ad);
+		ad->visor.go_position = 0;
+	}
+	print_gps_data(latitude, longitude, altitude, timestamp, ad, true, false);
 
     //Temporal trick
     	/*char bufLink[512];
@@ -132,31 +131,31 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
     	//ad->downloader.download = download_set_auto_download(download_id, true);
     	ad->downloader.download = download_start(ad->downloader.download_id);*/
     //Temporal trick end
-	}
 }
 
 void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-	if(timestamp){
-		appdata_s *ad = user_data;
-		set_position(latitude, longitude, altitude, timestamp, ad);
-		show_map_point(ad);
-		print_gps_data(latitude, longitude, altitude, timestamp, ad, true, true);
+	appdata_s *ad = user_data;
+	set_position(latitude, longitude, altitude, timestamp, ad);
+	show_map_point(ad);
+	print_gps_data(latitude, longitude, altitude, timestamp, ad, true, true);
+	ad->visor.gps_data = 1;
 
-		char *result;
+	char *result;
 
-		result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
+	result = xmlwriterAddNode(longitude, latitude, altitude, timestamp, ad);
 
-		if(ad->xml.writeNextWpt){
+	if(ad->xml.writeNextWpt > -1){
+		if(ad->xml.writeNextWpt == 0)
+				ad->xml.writeNextWpt = -1;
+		else {
 			free(result);
-			result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
-			ad->xml.writeNextWpt = 0;
-
+			result = xmlwriterAddWpt(longitude, latitude, altitude, ad);
 			show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
 		}
-
-		free(result);
+	}
+	free(result);
 
 		/*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
     	if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
@@ -166,7 +165,6 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
     		sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
     		evas_object_image_file_set(ad->img, bufd, NULL);
     	}*/
-	}
 }
 
 static void
@@ -212,9 +210,10 @@ create_base_gui(appdata_s *ad)
 
 	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
+	ad->visor.timestamp = 0;
 	ad->visor.go_position = 0;
 	ad->interval = 5;
-	ad->xml.writeNextWpt = 0;
+	ad->xml.writeNextWpt = -1;
 	ad->xml.docWpt = NULL;
 	ad->xml.writerWpt = NULL;
 	ad->xml.wptData = false;
@@ -226,6 +225,7 @@ create_base_gui(appdata_s *ad)
 	ad->tracker.maxAcceleration = 10;
 	ad->map.ovl = NULL;
 	ad->map.recording = false;
+	ad->visor.gps_data = 0;
 	//ad->visor.zoom = 7;
 
 	if (elm_win_wm_rotation_supported_get(ad->win)) {
