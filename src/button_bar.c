@@ -1,6 +1,7 @@
 #include "button_bar.h"
 #include "zipomaps.h"
-#include "xmlfunctions.h"
+#include "visor_online.h"
+#include "write_file.h"
 #include "config.h"
 #include <runtime_info.h>
 #include <notification.h>
@@ -35,27 +36,35 @@ void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	bool gps_service_on = false;
+		bool gps_service_on = false;
 
-	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
+		runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
 
-	if(gps_service_on){
-		static int counter = 0;
+		if(gps_service_on){
+			static int counter = 0;
 
-		if(ad->xml.writeNextWpt == -1) ad->xml.writeNextWpt = counter = 0;
-
-		if(!ad->xml.writeNextWpt){
-			char *result;
-
-			if(counter == 0){
-				result = xmlwriterCreateWptDoc(ad);
-				free(result);
+			if(ad->xml.writeNextWpt == -2){
+				counter = 0;
+				ad->xml.writeNextWpt = -1;
 			}
-			counter++;
-			ad->xml.writeNextWpt = counter;
-		}
-	} else {
-		evas_object_show(ad->popup_gps_disabled);
+
+			if(ad->xml.writeNextWpt == -1){
+				char *result;
+				if(!counter){
+					result = xmlwriterCreateWptDoc(ad);
+					free(result);
+				}
+				counter++;
+				ad->xml.writeNextWpt = counter;
+				if(ad->visor.timestamp){
+					result = xmlwriterAddWpt(ad->visor.longitude, ad->visor.latitude, ad->visor.altitude, ad);
+					show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
+					ad->visor.gps_data = 1;
+					free(result);
+				}
+			}
+		} else {
+			evas_object_show(ad->popup_gps_disabled);
 	}
 }
 
@@ -162,7 +171,8 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	}*/
 	ad->xml.trkData = false;
 	ad->xml.wptData = false;
-	ad->xml.writeNextWpt = -1;
+	ad->xml.writeNextWpt = -2;
+	ad->visor.gps_data = 0;
 }
 
 void popup_exit_cb(void *data, Evas_Object *obj, void *event_info)

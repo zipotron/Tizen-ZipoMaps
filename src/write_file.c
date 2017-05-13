@@ -1,5 +1,6 @@
-#include "xmlfunctions.h"
+#include "write_file.h"
 #include "zipomaps.h"
+#include "config.h"
 
 char
 *xmlwriterCreateWptDoc(void *data)
@@ -187,6 +188,8 @@ char
 	    sprintf(buf,"testXmlwriterDoc: Error at xmlTextWriterEndElement4\n");
 
 	ad->xml.wptData = true;
+
+	ad->xml.writeNextWpt = 0;
 
 	return buf;
 }

@@ -4,7 +4,7 @@
     <description>GPS Tracker</description>
     <profile name="mobile"/>
     <widget-application appid="org.zipotron.zipomapsWidget" exec="zipomapswidget" main="true" update-period="0">
-        <label>ZipomapsWidget</label>
+        <label>ZipoMapsWidget</label>
         <icon>appIcon.png</icon>
         <support-size preview="preview.png">2x2</support-size>
     </widget-application>

@@ -1,9 +1,5 @@
 #include <Elementary.h>
 
-#define FILETRACK "/track.gpx"
-#define FILEWPT "/wpt.gpx"
-#define MY_ENCODING "UTF-8"
-
 char
 *xmlwriterCreateWptDoc(void *data);
 

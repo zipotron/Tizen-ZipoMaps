@@ -49,7 +49,8 @@ typedef struct appdata {
 		double longitude;
 		double altitude;
 		time_t timestamp;
-		//int zoom;
+		int go_position;
+		int gps_data;
 	}visor;
 	int interval;
 	location_manager_h manager;

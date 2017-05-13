@@ -2,8 +2,9 @@
 
 #include "zipomaps.h"
 #include "calcfunctions.h"
-#include "xmlfunctions.h"
 #include "button_bar.h"
+#include "visor_online.h"
+#include "write_file.h"
 #include "config.h"
 #include <tizen.h>
 #include <stdio.h>
@@ -48,15 +49,10 @@ stop_gps(appdata_s *ad)
 static void
 show_map_point(void *user_data){
 	appdata_s *ad = user_data;
-	//elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
+
 	elm_map_region_show(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-	if(!ad->map.ovl){
-		Evas_Object *icon;
-		ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-		icon = elm_icon_add(ad->map.mapService);
-		elm_icon_standard_set(icon, "home");
-		elm_map_overlay_icon_set(ad->map.ovl, icon);
-	}
+	if((!ad->map.ovl) && (ad->map.recording))
+		show_home_mark(ad->visor.longitude, ad->visor.latitude, ad);
 }
 
 static void
@@ -74,77 +70,37 @@ set_position(double latitude, double longitude, double altitude, time_t timestam
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-	if(timestamp){
-		appdata_s *ad = user_data;
-		set_position(latitude, longitude, altitude, timestamp, ad);
-		//show_map_point(ad);
-
-		char buf[100];
-		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
-		elm_object_text_set(ad->labelGps, buf);
-
-		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration,NULL), ad->tracker.maxSpeed, LABELFORMATEND);
-		elm_object_text_set(ad->labelCalc, buf);
-
-    //Temporal trick
-    	/*char bufLink[512];
-    	sprintf(bufLink, "https://tile.thunderforest.com/cycle/%d/%d/%d.png?apikey=f23adf67ad974aa38a80c8a94b114e44", ad->visor.zoom, long2tilex(longitude, ad->visor.zoom), lat2tiley(latitude, ad->visor.zoom));
-    	ad->downloader.state = 0;
-    	ad->downloader.download = download_create(&(ad->downloader.download_id));
-    	//ad->downloader.download = download_set_url(ad->download_id, "https://tile.thunderforest.com/cycle/6/20/20.png?apikey=f23adf67ad974aa38a80c8a94b114e44");
-    	ad->downloader.download = download_set_url(ad->downloader.download_id, bufLink);
-    	char bufd[128];
-    	sprintf(bufd, DIR_MAPS"/%d",ad->visor.zoom);
-    	ad->downloader.download = download_set_destination(ad->downloader.download_id, bufd);
-    	ad->downloader.download = download_set_file_name(ad->downloader.download_id, "map.png");
-    	//ad->downloader.download = download_set_auto_download(download_id, true);
-    	ad->downloader.download = download_start(ad->downloader.download_id);*/
-    //Temporal trick end
+	appdata_s *ad = user_data;
+	set_position(latitude, longitude, altitude, timestamp, ad);
+	if(ad->visor.go_position){
+		show_map_point(ad);
+		ad->visor.go_position = 0;
 	}
 }
 
 void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
-	if(timestamp){
-		appdata_s *ad = user_data;
-		set_position(latitude, longitude, altitude, timestamp, ad);
-		show_map_point(ad);
+	appdata_s *ad = user_data;
+	set_position(latitude, longitude, altitude, timestamp, ad);
+	show_map_point(ad);
 
-		char *result;
-		char buf[100];
+	ad->visor.gps_data = 1;
 
-		result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
-		sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f - %s%s", LABELFORMATSTART, latitude, longitude, altitude, result, LABELFORMATEND);
+	char *result;
 
-		if(ad->xml.writeNextWpt){
+	result = xmlwriterAddNode(longitude, latitude, altitude, timestamp, ad);
+
+	if(ad->xml.writeNextWpt > -1){
+		if(ad->xml.writeNextWpt == 0)
+				ad->xml.writeNextWpt = -1;
+		else {
 			free(result);
-			result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
-			ad->xml.writeNextWpt = 0;
-
-			Evas_Object *icon;
-			ad->map.ovl = elm_map_overlay_add(ad->map.mapService, ad->visor.longitude, ad->visor.latitude);
-			icon = elm_icon_add(ad->map.mapService);
-			elm_icon_standard_set(icon, "clock");
-			elm_map_overlay_icon_set(ad->map.ovl, icon);
+			result = xmlwriterAddWpt(longitude, latitude, altitude, ad);
+			show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
 		}
-
-		elm_object_text_set(ad->labelGps, buf);
-		sprintf(buf, "%sSpeed:%0.1f m/s - Max:%0.1f m/s%s", LABELFORMATSTART, speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad), ad->tracker.maxSpeed, LABELFORMATEND);
-		elm_object_text_set(ad->labelCalc, buf);
-		sprintf(buf, "%sTotal Distance:%0.1f%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
-		elm_object_text_set(ad->labelDist, buf);
-		free(result);
-
-		/*ad->downloader.download = download_get_state(ad->downloader.download_id, &(ad->downloader.state));
-    	if (ad->downloader.state == DOWNLOAD_STATE_COMPLETED){
-    		ad->downloader.state = 0;
-
-    		char bufd[12];
-    		sprintf(bufd, DIR_MAPS"/%d/map.png",ad->visor.zoom);
-    		evas_object_image_file_set(ad->img, bufd, NULL);
-    	}*/
 	}
+	free(result);
 }
 
 static void
@@ -156,14 +112,6 @@ slider_Interval_changed_cb(void *data, Evas_Object *obj, void *event_info)
     location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 }
 
-/*static void
-slider_Zoom_changed_cb(void *data, Evas_Object *obj, void *event_info)
-{
-    appdata_s *ad = data;
-
-    ad->visor.zoom = elm_slider_value_get(obj);
-}*/
-
 static void app_get_resource(const char *res_file_in, char *res_path_out, int res_path_max)
 {
     char *res_path = app_get_resource_path();
@@ -173,13 +121,13 @@ static void app_get_resource(const char *res_file_in, char *res_path_out, int re
     }
 }
 
-static void my_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
+/*static void my_table_pack(Evas_Object *table, Evas_Object *child, int x, int y, int w, int h)
 {
    evas_object_size_hint_align_set(child, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_size_hint_weight_set(child, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    elm_table_pack(table, child, x, y, w, h);
    evas_object_show(child);
-}
+}*/
 
 static int
 widget_instance_create(widget_context_h context, bundle *content, int w, int h, void *user_data)
@@ -188,8 +136,10 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	int ret;
 	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
+	ad->visor.timestamp = 0;
+	ad->visor.go_position = 0;
 	ad->interval = 5;
-	ad->xml.writeNextWpt = 0;
+	ad->xml.writeNextWpt = -1;
 	ad->xml.docWpt = NULL;
 	ad->xml.writerWpt = NULL;
 	ad->xml.wptData = false;
@@ -198,10 +148,10 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->xml.trkData = false;
 	ad->tracker.maxSpeed = 0;
 	ad->tracker.distance = 0;
-	ad->tracker.maxAcceleration = 15;
+	ad->tracker.maxAcceleration = 10;
 	ad->map.ovl = NULL;
 	ad->map.recording = false;
-	//ad->visor.zoom = 7;
+	ad->visor.gps_data = 0;
 
 	if (content != NULL) {
 		/* Recover the previous status with the bundle object. */
@@ -238,6 +188,26 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 
 	elm_map_region_show(ad->map.mapService, 2.665, 39.576);
 	ad->map.scale = elm_map_overlay_scale_add(ad->map.mapService, (w*2)/3, h - 20);
+
+	ad->btn_info = elm_button_add(ad->conform);
+		evas_object_size_hint_weight_set(ad->btn_info,0.0,1.0);
+		evas_object_size_hint_align_set(ad->btn_info,-1.0,1.0);
+		elm_object_style_set(ad->btn_info, "circle");
+		elm_object_text_set(ad->btn_info,"Info");
+		evas_object_smart_callback_add(ad->btn_info, "clicked", btn_info_clicked_cb, ad);
+		evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
+		evas_object_show(ad->btn_info);
+		evas_object_resize(ad->btn_info, 100, 100);
+		evas_object_move(ad->btn_info, 0, 0);
+		//elm_table_pack(ad->table, ad->btn_info,0,0,2,1);
+
+		Evas_Object *ic;
+		char bt_img[PATH_MAX];
+		app_get_resource("info.png", bt_img, (int)PATH_MAX);
+		ic = elm_icon_add(ad->btn_info);
+		elm_image_file_set(ic,bt_img,NULL);
+		elm_object_part_content_set(ad->btn_info,"icon",ic);
+	evas_object_show(ic);
 
 	/* Show window after base gui is set up */
 	evas_object_show(ad->win);
@@ -309,9 +279,9 @@ widget_app_region_changed(app_event_info_h event_info, void *user_data)
 static widget_class_h
 widget_app_create(void *user_data)
 {
-	appdata_s *ad = user_data;
+	/*appdata_s *ad = user_data;
 
-	//create_base_gui(ad);
+	create_base_gui(ad);*/
 
 	struct stat buf;
 	if( stat(DIR, &buf) == -1 ){
