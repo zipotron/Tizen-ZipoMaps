@@ -17,14 +17,10 @@ typedef struct appdata {
 	Evas_Object *sliderInterval;
 	Evas_Object *btn_on;
 	Evas_Object *btn_off;
-	Evas_Object *btn_exit;
 	Evas_Object *btn_record;
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
-	Evas_Object *btn_info;
-	Evas_Object *popup_info;
-	Evas_Object *popup_gps_disabled;
-	//Evas_Object *sliderZoom;
+
 	/*struct{
 		download_error_e download;
 		download_state_e state;

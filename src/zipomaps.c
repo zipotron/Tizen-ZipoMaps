@@ -189,25 +189,25 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	elm_map_region_show(ad->map.mapService, 2.665, 39.576);
 	ad->map.scale = elm_map_overlay_scale_add(ad->map.mapService, (w*2)/3, h - 20);
 
-	ad->btn_info = elm_button_add(ad->conform);
-		evas_object_size_hint_weight_set(ad->btn_info,0.0,1.0);
-		evas_object_size_hint_align_set(ad->btn_info,-1.0,1.0);
-		elm_object_style_set(ad->btn_info, "circle");
-		elm_object_text_set(ad->btn_info,"Info");
-		evas_object_smart_callback_add(ad->btn_info, "clicked", btn_info_clicked_cb, ad);
-		evas_object_color_set(ad->btn_info, 0, 0, 0, 128);
-		evas_object_show(ad->btn_info);
-		evas_object_resize(ad->btn_info, 100, 100);
-		evas_object_move(ad->btn_info, 0, 0);
-		//elm_table_pack(ad->table, ad->btn_info,0,0,2,1);
+	/*Set of button bar*/
+	ad->btn_on = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_on,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_on,-1.0,1.0);
+	elm_object_style_set(ad->btn_on, "circle");
+	elm_object_text_set(ad->btn_on,"Info");
+	evas_object_smart_callback_add(ad->btn_on, "clicked", btn_gps_on_clicked_cb, ad);
+	evas_object_color_set(ad->btn_on, 0, 0, 0, 128);
+	evas_object_show(ad->btn_on);
+	evas_object_resize(ad->btn_on, 100, 100);
+	evas_object_move(ad->btn_on, 0, 0);
 
-		Evas_Object *ic;
-		char bt_img[PATH_MAX];
-		app_get_resource("info.png", bt_img, (int)PATH_MAX);
-		ic = elm_icon_add(ad->btn_info);
-		elm_image_file_set(ic,bt_img,NULL);
-		elm_object_part_content_set(ad->btn_info,"icon",ic);
-	evas_object_show(ic);
+	Evas_Object *ic_gps_on;
+	char bt_img[PATH_MAX];
+	app_get_resource("gps_on.png", bt_img, (int)PATH_MAX);
+	ic_gps_on = elm_icon_add(ad->btn_on);
+	elm_image_file_set(ic_gps_on,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_on,"icon",ic_gps_on);
+	evas_object_show(ic_gps_on);
 
 	/* Show window after base gui is set up */
 	evas_object_show(ad->win);

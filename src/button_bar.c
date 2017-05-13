@@ -26,13 +26,6 @@ btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 }
 
 void
-btn_info_clicked_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	appdata_s *ad = data;
-	evas_object_show(ad->popup_info);
-}
-
-void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
@@ -64,7 +57,7 @@ btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 				}
 			}
 		} else {
-			evas_object_show(ad->popup_gps_disabled);
+			notification_status_message_post("GPS is disabled.");
 	}
 }
 
@@ -90,7 +83,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		ad->map.recording = true;
 		location_manager_set_position_updated_cb(ad->manager, position_updated_record_cb, ad->interval, ad);
 	} else {
-		evas_object_show(ad->popup_gps_disabled);
+		notification_status_message_post("GPS is disabled.");
 	}
 }
 
@@ -105,15 +98,13 @@ btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	if(gps_service_on){
 		start_gps(ad);
 		evas_object_show(ad->sliderInterval);
-		evas_object_hide(ad->btn_exit);
 		evas_object_show(ad->btn_off);
 		evas_object_hide(ad->btn_on);
 		evas_object_show(ad->btn_record);
-		evas_object_hide(ad->btn_info);
 		location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 		runtime_info_set_changed_cb(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, gps_settings_changed_cb, ad);
 	} else {
-		evas_object_show(ad->popup_gps_disabled);
+		notification_status_message_post("GPS is disabled.");
 	}
 }
 
@@ -123,10 +114,8 @@ btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	appdata_s *ad = data;
 	evas_object_hide(ad->sliderInterval);
 	evas_object_hide(ad->btn_off);
-	evas_object_show(ad->btn_exit);
 	evas_object_hide(ad->btn_record);
 	evas_object_show(ad->btn_on);
-	evas_object_show(ad->btn_info);
 	stop_gps(ad);
 }
 
