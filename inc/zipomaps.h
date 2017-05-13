@@ -12,15 +12,13 @@ typedef struct appdata {
 	Evas_Object *win;
 	Evas_Object *conform;
 	Evas_Object *labelGps;
-	Evas_Object *labelCalc;
-	Evas_Object *labelDist;
 	Evas_Object *sliderInterval;
 	Evas_Object *btn_on;
 	Evas_Object *btn_off;
 	Evas_Object *btn_record;
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
-
+	Evas_Object *btn_clean;
 	/*struct{
 		download_error_e download;
 		download_state_e state;
@@ -45,7 +43,6 @@ typedef struct appdata {
 		double longitude;
 		double altitude;
 		time_t timestamp;
-		int go_position;
 		int gps_data;
 	}visor;
 	int interval;

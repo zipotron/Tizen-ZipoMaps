@@ -20,9 +20,9 @@ void gps_settings_changed_cb(runtime_info_key_e key, void *data){
 }
 
 void
-btn_exit_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+btn_clean_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
-	ui_app_exit();
+
 }
 
 void
@@ -75,6 +75,7 @@ btn_record_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		evas_object_show(ad->btn_point);
 		evas_object_hide(ad->btn_off);
 		evas_object_show(ad->btn_stop);
+		evas_object_show(ad->labelGps);
 		char *result;
 		result = xmlwriterCreateTrackDoc(ad);
 		/*elm_object_text_set(obj, result);*/
@@ -100,6 +101,7 @@ btn_gps_on_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 		evas_object_show(ad->sliderInterval);
 		evas_object_show(ad->btn_off);
 		evas_object_hide(ad->btn_on);
+		evas_object_hide(ad->btn_clean);
 		evas_object_show(ad->btn_record);
 		location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
 		runtime_info_set_changed_cb(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, gps_settings_changed_cb, ad);
@@ -116,6 +118,7 @@ btn_gps_off_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_hide(ad->btn_off);
 	evas_object_hide(ad->btn_record);
 	evas_object_show(ad->btn_on);
+	evas_object_show(ad->btn_clean);
 	stop_gps(ad);
 }
 
@@ -128,6 +131,7 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	evas_object_show(ad->btn_off);
 	evas_object_hide(ad->btn_point);
 	evas_object_show(ad->btn_record);
+	evas_object_hide(ad->labelGps);
 	char *result;
 
 	location_manager_set_position_updated_cb(ad->manager, position_updated_cb, ad->interval, ad);
@@ -162,10 +166,4 @@ btn_stop_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 	ad->xml.wptData = false;
 	ad->xml.writeNextWpt = -2;
 	ad->visor.gps_data = 0;
-}
-
-void popup_exit_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	Evas_Object *popup = data;
-	evas_object_hide(popup);
 }

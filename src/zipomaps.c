@@ -67,15 +67,34 @@ set_position(double latitude, double longitude, double altitude, time_t timestam
 	ad->visor.timestamp = timestamp;
 }
 
+static void
+print_gps_data(double latitude, double longitude, double altitude, time_t timestamp, appdata_s *ad, int kmh, int print_distance){
+
+	char buf[100];
+
+	double speed = speedAndDistance(latitude, longitude, altitude, timestamp, &(ad->tracker.maxSpeed), ad->tracker.maxAcceleration, ad);
+
+	sprintf(buf, "%sPos:%0.5f/%0.5f Alt:%0.1f%s", LABELFORMATSTART, latitude, longitude, altitude, LABELFORMATEND);
+	elm_object_text_set(ad->labelGps, buf);
+	if(kmh)
+		sprintf(buf, "%sSpeed:%.0f km/h - Max:%.0f km/h%s", LABELFORMATSTART, speed * 3.6, ad->tracker.maxSpeed *3.6, LABELFORMATEND);
+	else
+		sprintf(buf, "%sSpeed:%.0f m/s - Max:%.0f m/s%s", LABELFORMATSTART, speed, ad->tracker.maxSpeed, LABELFORMATEND);
+
+	/*elm_object_text_set(ad->labelCalc, buf);*/
+	if(print_distance){
+		sprintf(buf, "%sTotal Distance:%.0f m%s", LABELFORMATSTART, ad->tracker.distance, LABELFORMATEND);
+		/*elm_object_text_set(ad->labelDist, buf);*/
+	}
+}
+
 void
 position_updated_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data)
 {
 	appdata_s *ad = user_data;
 	set_position(latitude, longitude, altitude, timestamp, ad);
-	if(ad->visor.go_position){
-		show_map_point(ad);
-		ad->visor.go_position = 0;
-	}
+	show_map_point(ad);
+	print_gps_data(latitude, longitude, altitude, timestamp, ad, true, false);
 }
 
 void
@@ -84,7 +103,7 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 	appdata_s *ad = user_data;
 	set_position(latitude, longitude, altitude, timestamp, ad);
 	show_map_point(ad);
-
+	print_gps_data(latitude, longitude, altitude, timestamp, ad, true, true);
 	ad->visor.gps_data = 1;
 
 	char *result;
@@ -137,7 +156,6 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
 	ad->visor.timestamp = 0;
-	ad->visor.go_position = 0;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = -1;
 	ad->xml.docWpt = NULL;
@@ -189,25 +207,128 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	elm_map_region_show(ad->map.mapService, 2.665, 39.576);
 	ad->map.scale = elm_map_overlay_scale_add(ad->map.mapService, (w*2)/3, h - 20);
 
-	/*Set of button bar*/
+	/*Set slidebar*/
+	ad->sliderInterval = elm_slider_add(ad->conform);
+	elm_slider_min_max_set(ad->sliderInterval, 1, 100);
+	elm_slider_value_set(ad->sliderInterval, ad->interval);
+	elm_slider_indicator_show_set(ad->sliderInterval, EINA_TRUE);
+	elm_slider_indicator_format_set(ad->sliderInterval, "%1.0f");
+	evas_object_smart_callback_add(ad->sliderInterval, "changed", slider_Interval_changed_cb, ad);
+
+	evas_object_size_hint_weight_set(ad->sliderInterval,0.0,1.0);
+	evas_object_size_hint_align_set(ad->sliderInterval,-1.0,1.0);
+	evas_object_color_set(ad->sliderInterval, 0, 200, 0, 255);
+	evas_object_resize(ad->sliderInterval, w, 10);
+	evas_object_move(ad->sliderInterval, 0, h - 30);
+
+	/* Label */
+	ad->labelGps = elm_label_add(ad->conform);
+	elm_object_text_set(ad->labelGps, LABELFORMATSTART "Waiting GPS status" LABELFORMATEND);
+	evas_object_size_hint_weight_set(ad->labelGps,0.0,1.0);
+	evas_object_size_hint_align_set(ad->labelGps,-1.0,1.0);
+	evas_object_resize(ad->labelGps, w, 50);
+	evas_object_move(ad->labelGps, 0, h - 50);
+
+	/*Set button bar*/
 	ad->btn_on = elm_button_add(ad->conform);
 	evas_object_size_hint_weight_set(ad->btn_on,0.0,1.0);
 	evas_object_size_hint_align_set(ad->btn_on,-1.0,1.0);
 	elm_object_style_set(ad->btn_on, "circle");
-	elm_object_text_set(ad->btn_on,"Info");
+	elm_object_text_set(ad->btn_on,"On");
 	evas_object_smart_callback_add(ad->btn_on, "clicked", btn_gps_on_clicked_cb, ad);
 	evas_object_color_set(ad->btn_on, 0, 0, 0, 128);
 	evas_object_show(ad->btn_on);
 	evas_object_resize(ad->btn_on, 100, 100);
 	evas_object_move(ad->btn_on, 0, 0);
 
-	Evas_Object *ic_gps_on;
+	Evas_Object *ic;
 	char bt_img[PATH_MAX];
 	app_get_resource("gps_on.png", bt_img, (int)PATH_MAX);
-	ic_gps_on = elm_icon_add(ad->btn_on);
-	elm_image_file_set(ic_gps_on,bt_img,NULL);
-	elm_object_part_content_set(ad->btn_on,"icon",ic_gps_on);
-	evas_object_show(ic_gps_on);
+	ic = elm_icon_add(ad->btn_on);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_on,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_clean = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_clean,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_clean,-1.0,1.0);
+	elm_object_style_set(ad->btn_clean, "circle");
+	elm_object_text_set(ad->btn_on,"clean");
+	evas_object_smart_callback_add(ad->btn_clean, "clicked", btn_clean_clicked_cb, ad);
+	evas_object_color_set(ad->btn_clean, 0, 0, 0, 128);
+	evas_object_show(ad->btn_clean);
+	evas_object_resize(ad->btn_clean, 100, 100);
+	evas_object_move(ad->btn_clean, w - 100, 0);
+
+	app_get_resource("clean.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_clean);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_clean,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_off = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_off,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_off,-1.0,1.0);
+	elm_object_style_set(ad->btn_off, "circle");
+	elm_object_text_set(ad->btn_off,"Off");
+	evas_object_smart_callback_add(ad->btn_off, "clicked", btn_gps_off_clicked_cb, ad);
+	evas_object_color_set(ad->btn_off, 0, 0, 0, 128);
+	evas_object_resize(ad->btn_off, 100, 100);
+	evas_object_move(ad->btn_off, 0, 0);
+
+	app_get_resource("gps_off.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_off);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_off,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_record = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_record,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_record,-1.0,1.0);
+	elm_object_style_set(ad->btn_off, "circle");
+	elm_object_text_set(ad->btn_off,"Record");
+	evas_object_smart_callback_add(ad->btn_record, "clicked", btn_record_clicked_cb, ad);
+	evas_object_color_set(ad->btn_record, 0, 0, 0, 128);
+	evas_object_resize(ad->btn_record, 100, 100);
+	evas_object_move(ad->btn_record, w - 100, 0);
+
+	app_get_resource("record.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_record);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_record,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_stop = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_stop,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_stop,-1.0,1.0);
+	elm_object_style_set(ad->btn_stop, "circle");
+	elm_object_text_set(ad->btn_off,"Stop");
+	evas_object_smart_callback_add(ad->btn_stop, "clicked", btn_stop_clicked_cb, ad);
+	evas_object_color_set(ad->btn_stop, 0, 0, 0, 128);
+	evas_object_resize(ad->btn_stop, 100, 100);
+	evas_object_move(ad->btn_stop, 0, 0);
+
+	app_get_resource("stop.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_stop);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_stop,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_point = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_point,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_point,-1.0,1.0);
+	elm_object_style_set(ad->btn_off, "circle");
+	elm_object_text_set(ad->btn_off,"Point");
+	evas_object_smart_callback_add(ad->btn_point, "clicked", btn_point_clicked_cb, ad);
+	evas_object_color_set(ad->btn_point, 0, 0, 0, 128);
+	evas_object_resize(ad->btn_point, 100, 100);
+	evas_object_move(ad->btn_point, w - 100, 0);
+
+	app_get_resource("wpt.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_point);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_point,"icon",ic);
+	evas_object_show(ic);
 
 	/* Show window after base gui is set up */
 	evas_object_show(ad->win);
