@@ -108,14 +108,14 @@ position_updated_record_cb(double latitude, double longitude, double altitude, t
 
 	char *result;
 
-	result = xmlwriterAddNode(longitude, latitude, altitude, timestamp, ad);
+	result = xmlwriterAddNode(latitude, longitude, altitude, timestamp, ad);
 
 	if(ad->xml.writeNextWpt > -1){
 		if(ad->xml.writeNextWpt == 0)
 				ad->xml.writeNextWpt = -1;
 		else {
 			free(result);
-			result = xmlwriterAddWpt(longitude, latitude, altitude, ad);
+			result = xmlwriterAddWpt(latitude, longitude, altitude, ad);
 			show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
 		}
 	}
