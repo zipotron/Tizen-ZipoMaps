@@ -24,6 +24,7 @@ btn_clean_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
 	elm_map_overlay_del(ad->map.ovl);
+	ad->map.ovl = NULL;
 }
 
 void
@@ -177,7 +178,7 @@ void
 btn_zoom_in_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	if (ad->visor.zoom < 15) ad->visor.zoom++;
+	if (ad->visor.zoom < 19) ad->visor.zoom++;
 	elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 }
 
@@ -185,6 +186,6 @@ void
 btn_zoom_out_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	if (ad->visor.zoom > 0) ad->visor.zoom--;
+	if (ad->visor.zoom > 1) ad->visor.zoom--;
 	elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 }
