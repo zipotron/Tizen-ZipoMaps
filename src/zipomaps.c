@@ -156,6 +156,7 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->visor.latitude = 0;
 	ad->visor.longitude = 0;
 	ad->visor.timestamp = 0;
+	ad->visor.zoom = 12;
 	ad->interval = 5;
 	ad->xml.writeNextWpt = -1;
 	ad->xml.docWpt = NULL;
@@ -194,7 +195,7 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	/* Mapservice BG*/
 	ad->map.mapService = elm_map_add(ad->conform);
 	elm_map_zoom_mode_set(ad->map.mapService, ELM_MAP_ZOOM_MODE_MANUAL);
-	elm_map_zoom_set(ad->map.mapService, 12);
+	elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 
 	evas_object_size_hint_max_set(ad->map.mapService, w, h);
 	evas_object_size_hint_min_set(ad->map.mapService, w, h);
@@ -253,7 +254,7 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	evas_object_size_hint_weight_set(ad->btn_clean,0.0,1.0);
 	evas_object_size_hint_align_set(ad->btn_clean,-1.0,1.0);
 	elm_object_style_set(ad->btn_clean, "circle");
-	elm_object_text_set(ad->btn_on,"clean");
+	elm_object_text_set(ad->btn_clean,"clean");
 	evas_object_smart_callback_add(ad->btn_clean, "clicked", btn_clean_clicked_cb, ad);
 	evas_object_color_set(ad->btn_clean, 0, 0, 0, 128);
 	evas_object_show(ad->btn_clean);
@@ -285,8 +286,8 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->btn_record = elm_button_add(ad->conform);
 	evas_object_size_hint_weight_set(ad->btn_record,0.0,1.0);
 	evas_object_size_hint_align_set(ad->btn_record,-1.0,1.0);
-	elm_object_style_set(ad->btn_off, "circle");
-	elm_object_text_set(ad->btn_off,"Record");
+	elm_object_style_set(ad->btn_record, "circle");
+	elm_object_text_set(ad->btn_record,"Record");
 	evas_object_smart_callback_add(ad->btn_record, "clicked", btn_record_clicked_cb, ad);
 	evas_object_color_set(ad->btn_record, 0, 0, 0, 128);
 	evas_object_resize(ad->btn_record, 100, 100);
@@ -302,7 +303,7 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	evas_object_size_hint_weight_set(ad->btn_stop,0.0,1.0);
 	evas_object_size_hint_align_set(ad->btn_stop,-1.0,1.0);
 	elm_object_style_set(ad->btn_stop, "circle");
-	elm_object_text_set(ad->btn_off,"Stop");
+	elm_object_text_set(ad->btn_stop,"Stop");
 	evas_object_smart_callback_add(ad->btn_stop, "clicked", btn_stop_clicked_cb, ad);
 	evas_object_color_set(ad->btn_stop, 0, 0, 0, 128);
 	evas_object_resize(ad->btn_stop, 100, 100);
@@ -317,8 +318,8 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->btn_point = elm_button_add(ad->conform);
 	evas_object_size_hint_weight_set(ad->btn_point,0.0,1.0);
 	evas_object_size_hint_align_set(ad->btn_point,-1.0,1.0);
-	elm_object_style_set(ad->btn_off, "circle");
-	elm_object_text_set(ad->btn_off,"Point");
+	elm_object_style_set(ad->btn_point, "circle");
+	elm_object_text_set(ad->btn_point,"Point");
 	evas_object_smart_callback_add(ad->btn_point, "clicked", btn_point_clicked_cb, ad);
 	evas_object_color_set(ad->btn_point, 0, 0, 0, 128);
 	evas_object_resize(ad->btn_point, 100, 100);
@@ -328,6 +329,38 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ic = elm_icon_add(ad->btn_point);
 	elm_image_file_set(ic,bt_img,NULL);
 	elm_object_part_content_set(ad->btn_point,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_zoom_in = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_zoom_in,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_zoom_in,-1.0,1.0);
+	elm_object_style_set(ad->btn_zoom_in, "circle");
+	elm_object_text_set(ad->btn_zoom_in,"Point");
+	evas_object_smart_callback_add(ad->btn_zoom_in, "clicked", btn_zoom_in_clicked_cb, ad);
+	evas_object_color_set(ad->btn_zoom_in, 0, 0, 0, 96);
+	evas_object_resize(ad->btn_zoom_in, 100, 100);
+	evas_object_move(ad->btn_zoom_in, w - 100, h - 140);
+
+	app_get_resource("plus.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_zoom_in);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_zoom_in,"icon",ic);
+	evas_object_show(ic);
+
+	ad->btn_zoom_out = elm_button_add(ad->conform);
+	evas_object_size_hint_weight_set(ad->btn_zoom_out,0.0,1.0);
+	evas_object_size_hint_align_set(ad->btn_zoom_out,-1.0,1.0);
+	elm_object_style_set(ad->btn_zoom_out, "circle");
+	elm_object_text_set(ad->btn_zoom_out,"Point");
+	evas_object_smart_callback_add(ad->btn_zoom_out, "clicked", btn_zoom_out_clicked_cb, ad);
+	evas_object_color_set(ad->btn_zoom_out, 0, 0, 0, 96);
+	evas_object_resize(ad->btn_zoom_out, 100, 100);
+	evas_object_move(ad->btn_zoom_out, 0, h - 140);
+
+	app_get_resource("minus.png", bt_img, (int)PATH_MAX);
+	ic = elm_icon_add(ad->btn_zoom_out);
+	elm_image_file_set(ic,bt_img,NULL);
+	elm_object_part_content_set(ad->btn_zoom_out,"icon",ic);
 	evas_object_show(ic);
 
 	/* Show window after base gui is set up */

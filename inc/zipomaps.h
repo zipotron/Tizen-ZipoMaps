@@ -19,6 +19,8 @@ typedef struct appdata {
 	Evas_Object *btn_stop;
 	Evas_Object *btn_point;
 	Evas_Object *btn_clean;
+	Evas_Object *btn_zoom_in;
+	Evas_Object *btn_zoom_out;
 	/*struct{
 		download_error_e download;
 		download_state_e state;
@@ -43,6 +45,7 @@ typedef struct appdata {
 		double longitude;
 		double altitude;
 		time_t timestamp;
+		int zoom;
 		int gps_data;
 	}visor;
 	int interval;
