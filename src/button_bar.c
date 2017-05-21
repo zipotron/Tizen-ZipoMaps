@@ -22,41 +22,42 @@ void gps_settings_changed_cb(runtime_info_key_e key, void *data){
 void
 btn_clean_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
-
+	appdata_s *ad = data;
+	elm_map_overlay_del(ad->map.ovl);
 }
 
 void
 btn_point_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-		bool gps_service_on = false;
+	bool gps_service_on = false;
 
-		runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
+	runtime_info_get_value_bool(RUNTIME_INFO_KEY_LOCATION_SERVICE_ENABLED, &gps_service_on);
 
-		if(gps_service_on){
-			static int counter = 0;
+	if(gps_service_on){
+		static int counter = 0;
 
-			if(ad->xml.writeNextWpt == -2){
-				counter = 0;
-				ad->xml.writeNextWpt = -1;
+		if(ad->xml.writeNextWpt == -2){
+			counter = 0;
+			ad->xml.writeNextWpt = -1;
+		}
+
+		if(ad->xml.writeNextWpt == -1){
+			char *result;
+			if(!counter){
+				result = xmlwriterCreateWptDoc(ad);
+				free(result);
 			}
-
-			if(ad->xml.writeNextWpt == -1){
-				char *result;
-				if(!counter){
-					result = xmlwriterCreateWptDoc(ad);
-					free(result);
-				}
-				counter++;
-				ad->xml.writeNextWpt = counter;
-				if(ad->visor.timestamp){
-					result = xmlwriterAddWpt(ad->visor.latitude, ad->visor.longitude, ad->visor.altitude, ad);
-					show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
-					ad->visor.gps_data = 1;
-					free(result);
-				}
+			counter++;
+			ad->xml.writeNextWpt = counter;
+			if(ad->visor.timestamp){
+				result = xmlwriterAddWpt(ad->visor.latitude, ad->visor.longitude, ad->visor.altitude, ad);
+				show_wpt_mark(ad->visor.longitude, ad->visor.latitude, ad);
+				ad->visor.gps_data = 1;
+				free(result);
 			}
-		} else {
+		}
+	} else {
 			notification_status_message_post("GPS is disabled.");
 	}
 }
@@ -176,7 +177,7 @@ void
 btn_zoom_in_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	ad->visor.zoom++;
+	if (ad->visor.zoom < 15) ad->visor.zoom++;
 	elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 }
 
@@ -184,6 +185,6 @@ void
 btn_zoom_out_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	ad->visor.zoom--;
+	if (ad->visor.zoom > 0) ad->visor.zoom--;
 	elm_map_zoom_set(ad->map.mapService, ad->visor.zoom);
 }
