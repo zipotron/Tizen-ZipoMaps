@@ -23,8 +23,7 @@ void
 btn_clean_clicked_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata_s *ad = data;
-	elm_map_overlay_del(ad->map.ovl);
-	ad->map.ovl = NULL;
+	widget_instance_update(*(ad->context), NULL, 1, data);
 }
 
 void

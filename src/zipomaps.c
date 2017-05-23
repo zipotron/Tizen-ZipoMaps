@@ -171,6 +171,8 @@ widget_instance_create(widget_context_h context, bundle *content, int w, int h, 
 	ad->map.ovl = NULL;
 	ad->map.recording = false;
 	ad->visor.gps_data = 0;
+	ad->w = w;
+	ad->h = h;
 
 	if (content != NULL) {
 		/* Recover the previous status with the bundle object. */
@@ -399,11 +401,22 @@ widget_instance_resume(widget_context_h context, void *user_data)
 	return WIDGET_ERROR_NONE;
 }
 
-static int
+int
 widget_instance_update(widget_context_h context, bundle *content,
                              int force, void *user_data)
 {
 	/* Take necessary actions when widget instance should be updated. */
+
+	/*elm_map_overlay_del(ad->map.ovl);
+	evas_object_del(ad->map.ovl);
+	evas_object_del(ad->map.mapService);
+	evas_object_del(ad->map.scale);
+	ad->map.ovl = NULL;*/
+
+	appdata_s *ad = user_data;
+	widget_instance_destroy(context, NULL, content, user_data);
+	widget_instance_create(context, content, ad->w, ad->h, user_data);
+
 	return WIDGET_ERROR_NONE;
 }
 

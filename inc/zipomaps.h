@@ -21,6 +21,9 @@ typedef struct appdata {
 	Evas_Object *btn_clean;
 	Evas_Object *btn_zoom_in;
 	Evas_Object *btn_zoom_out;
+	int w;
+	int h;
+	widget_context_h *context;
 	/*struct{
 		download_error_e download;
 		download_state_e state;
@@ -68,6 +71,10 @@ position_updated_cb(double latitude, double longitude, double altitude, time_t t
 
 void
 position_updated_record_cb(double latitude, double longitude, double altitude, time_t timestamp, void *user_data);
+
+int
+widget_instance_update(widget_context_h context, bundle *content,
+                             int force, void *user_data);
 
 #ifdef  LOG_TAG
 #undef  LOG_TAG
